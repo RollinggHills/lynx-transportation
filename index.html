@@ -8,7 +8,7 @@
 <meta property="og:title" content="Lynx Transportation Services — Your Personal Driver">
 <meta property="og:description" content="Private rides, morning commutes, night-out standby, and dedicated 6–12 hour driver service. Book direct — no surge, no strangers.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' fill='%23e2b458'>✦</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%23e2b458' d='M50 14L38 18L30 5L24 24L14 34L18 44L12 52L20 54L16 64L26 62L30 74L38 72L50 86L62 72L70 74L74 62L84 64L80 54L88 52L82 44L86 34L76 24L70 5L62 18Z'/><path fill='%230d1020' d='M31 10L27 21L36 18Z M69 10L73 21L64 18Z M33 42L45 40L41 47Z M67 42L55 40L59 47Z M45 59L55 59L50 66Z'/></svg>">
 <style>
   :root {
     --bg: #060810;
@@ -46,6 +46,19 @@
   .brand .name { line-height: 1.25; }
   .brand .name b { display: block; font-size: 1.02rem; letter-spacing: 0.22em; font-weight: 700; }
   .brand .name span { display: block; font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+  /* Chrome + gold metal text (echoes the mascot logo) */
+  .brand .name b, .foot-brand b {
+    background: linear-gradient(180deg, #ffffff 0%, #d7dbe6 40%, #9aa1b5 55%, #eef0f6 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero h1 {
+    background: linear-gradient(180deg, #ffffff 0%, #d7dbe6 42%, #9aa1b5 55%, #eef0f6 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero h1 em {
+    background: linear-gradient(180deg, #f8dd8a 0%, #e2b458 45%, #b9872f 60%, #f0cf7a 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
   .nav a.book-btn {
     background: var(--accent); color: #14100a; text-decoration: none;
     padding: 10px 22px; border-radius: 100px; font-weight: 700; font-size: 0.9rem;
@@ -238,18 +251,17 @@
 <header>
   <div class="wrap nav">
     <div class="brand">
-      <!-- Lynx constellation mark -->
-      <svg width="44" height="30" viewBox="0 0 88 60" fill="none" aria-hidden="true">
-        <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5"
-                  stroke="#e2b458" stroke-width="1.2" opacity="0.55"/>
-        <circle cx="4"  cy="52" r="2.6" fill="#f2f4fa"/>
-        <circle cx="18" cy="40" r="2"   fill="#e2b458"/>
-        <circle cx="30" cy="46" r="1.7" fill="#f2f4fa"/>
-        <circle cx="46" cy="28" r="2.4" fill="#e2b458"/>
-        <circle cx="58" cy="33" r="1.6" fill="#f2f4fa"/>
-        <circle cx="72" cy="12" r="2"   fill="#f2f4fa"/>
-        <circle cx="80" cy="18" r="1.5" fill="#e2b458"/>
-        <circle cx="85" cy="5"  r="2.8" fill="#e2b458"/>
+      <!-- Lynx head mark -->
+      <svg width="40" height="40" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <defs><linearGradient id="lynxgold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f8dc82"/><stop offset="0.55" stop-color="#e2b458"/><stop offset="1" stop-color="#b9872f"/>
+        </linearGradient></defs>
+        <path fill="url(#lynxgold)" d="M50 14 L38 18 L30 5 L24 24 L14 34 L18 44 L12 52 L20 54 L16 64 L26 62 L30 74 L38 72 L50 86 L62 72 L70 74 L74 62 L84 64 L80 54 L88 52 L82 44 L86 34 L76 24 L70 5 L62 18 Z"/>
+        <path fill="#0d1020" d="M31 10 L27 21 L36 18 Z"/>
+        <path fill="#0d1020" d="M69 10 L73 21 L64 18 Z"/>
+        <path fill="#0d1020" d="M33 42 L45 40 L41 47 Z"/>
+        <path fill="#0d1020" d="M67 42 L55 40 L59 47 Z"/>
+        <path fill="#0d1020" d="M45 59 L55 59 L50 66 Z"/>
       </svg>
       <div class="name"><b>LYNX</b><span>Transportation Services</span></div>
     </div>
@@ -261,18 +273,28 @@
   <div class="stars" id="starfield"></div>
   <section class="hero wrap">
     <div class="mark">
-      <svg width="150" height="102" viewBox="0 0 88 60" fill="none" aria-label="Lynx constellation">
-        <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5"
-                  stroke="#e2b458" stroke-width="1" opacity="0.55"/>
-        <circle cx="4"  cy="52" r="2.6" fill="#f2f4fa"/>
-        <circle cx="18" cy="40" r="2"   fill="#e2b458"/>
-        <circle cx="30" cy="46" r="1.7" fill="#f2f4fa"/>
-        <circle cx="46" cy="28" r="2.4" fill="#e2b458"/>
-        <circle cx="58" cy="33" r="1.6" fill="#f2f4fa"/>
-        <circle cx="72" cy="12" r="2"   fill="#f2f4fa"/>
-        <circle cx="80" cy="18" r="1.5" fill="#e2b458"/>
-        <circle cx="85" cy="5"  r="2.8" fill="#e2b458"/>
+      <svg width="110" height="110" viewBox="0 0 100 100" fill="none" aria-label="Lynx mark">
+        <path fill="url(#lynxgold)" d="M50 14 L38 18 L30 5 L24 24 L14 34 L18 44 L12 52 L20 54 L16 64 L26 62 L30 74 L38 72 L50 86 L62 72 L70 74 L74 62 L84 64 L80 54 L88 52 L82 44 L86 34 L76 24 L70 5 L62 18 Z"/>
+        <path fill="#0d1020" d="M31 10 L27 21 L36 18 Z"/>
+        <path fill="#0d1020" d="M69 10 L73 21 L64 18 Z"/>
+        <path fill="#0d1020" d="M33 42 L45 40 L41 47 Z"/>
+        <path fill="#0d1020" d="M67 42 L55 40 L59 47 Z"/>
+        <path fill="#0d1020" d="M45 59 L55 59 L50 66 Z"/>
       </svg>
+      <div style="margin-top: 6px;">
+        <svg width="120" height="82" viewBox="0 0 88 60" fill="none" aria-label="Lynx constellation" opacity="0.85">
+          <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5"
+                    stroke="#e2b458" stroke-width="1" opacity="0.55"/>
+          <circle cx="4"  cy="52" r="2.6" fill="#f2f4fa"/>
+          <circle cx="18" cy="40" r="2"   fill="#e2b458"/>
+          <circle cx="30" cy="46" r="1.7" fill="#f2f4fa"/>
+          <circle cx="46" cy="28" r="2.4" fill="#e2b458"/>
+          <circle cx="58" cy="33" r="1.6" fill="#f2f4fa"/>
+          <circle cx="72" cy="12" r="2"   fill="#f2f4fa"/>
+          <circle cx="80" cy="18" r="1.5" fill="#e2b458"/>
+          <circle cx="85" cy="5"  r="2.8" fill="#e2b458"/>
+        </svg>
+      </div>
     </div>
     <span class="kicker">Private Driver Service</span>
     <h1>Your personal driver.<br><em>On your schedule.</em></h1>

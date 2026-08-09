@@ -48,7 +48,9 @@
   @media print { .cut-note { color: #b9bdcc; } }
 
   /* Handout cards */
-  .minis { display: flex; justify-content: center; gap: 0.18in; }
+  .minis { display: flex; justify-content: center; gap: 0.18in; flex-wrap: wrap; }
+  .mini.pay { border-style: solid; border-color: #a37822; }
+  .mini.pay .mname { color: #a37822; }
   .mini {
     width: 1.72in; border: 1.5px dashed #b9bdcc; border-radius: 10px;
     padding: 0.14in 0.1in; text-align: center; page-break-inside: avoid;
@@ -67,6 +69,17 @@
 
 <div class="sheet">
   <div class="placard">
+    <svg width="64" height="64" viewBox="0 0 100 100" fill="none" style="display:block;margin:0 auto 4px;">
+      <defs><linearGradient id="lynxgold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#e8c25e"/><stop offset="0.55" stop-color="#c9932e"/><stop offset="1" stop-color="#a37822"/>
+      </linearGradient></defs>
+      <path fill="url(#lynxgold)" d="M50 14 L38 18 L30 5 L24 24 L14 34 L18 44 L12 52 L20 54 L16 64 L26 62 L30 74 L38 72 L50 86 L62 72 L70 74 L74 62 L84 64 L80 54 L88 52 L82 44 L86 34 L76 24 L70 5 L62 18 Z"/>
+      <path fill="#101322" d="M31 10 L27 21 L36 18 Z"/>
+      <path fill="#101322" d="M69 10 L73 21 L64 18 Z"/>
+      <path fill="#101322" d="M33 42 L45 40 L41 47 Z"/>
+      <path fill="#101322" d="M67 42 L55 40 L59 47 Z"/>
+      <path fill="#101322" d="M45 59 L55 59 L50 66 Z"/>
+    </svg>
     <div class="brandline">
       <svg width="60" height="41" viewBox="0 0 88 60" fill="none">
         <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5" stroke="#a37822" stroke-width="1.4" opacity="0.7"/>
@@ -103,6 +116,10 @@
     <div class="mini">
       <div class="mname">LYNX</div><div class="msub">Personal Driver</div>
       <img class="qr" src="booking-qr.png" alt="QR"><div class="murl">lynxdriver.com</div>
+    </div>
+    <div class="mini pay">
+      <div class="mname">SCAN TO PAY</div><div class="msub">Cash App</div>
+      <img class="qr" src="pay-qr.png" alt="Payment QR"><div class="murl">$PayRollingHills</div>
     </div>
   </div>
 </div>
