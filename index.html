@@ -169,10 +169,27 @@
   }
   button.submit:hover { opacity: 0.88; }
   .form-note { text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 14px; }
-  #confirm-msg {
-    display: none; text-align: center; background: var(--accent-soft); color: var(--text);
-    border: 1px solid var(--accent); border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 0.92rem;
+  /* Booking confirmation: reference code + payment instructions */
+  #booking-confirm {
+    display: none; margin-top: 18px; border: 1px solid var(--accent); border-radius: 12px;
+    padding: 20px 18px; background: var(--accent-soft);
   }
+  .bc-title { text-align: center; font-weight: 700; font-size: 1.05rem; }
+  .bc-code {
+    text-align: center; font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 1.7rem; font-weight: 800; letter-spacing: 0.08em; color: var(--accent);
+    margin: 10px 0 4px; user-select: all;
+  }
+  .bc-code-hint { text-align: center; color: var(--muted); font-size: 0.75rem; margin-bottom: 10px; }
+  .bc-amount { text-align: center; font-weight: 700; margin-bottom: 12px; }
+  .bc-pay { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .bc-pay b.head { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+  .bc-pay ul { list-style: none; margin: 0; padding: 0; }
+  .bc-pay li { padding: 3px 0; color: var(--muted); font-size: 0.92rem; }
+  .bc-pay li b { color: var(--text); user-select: all; }
+  .bc-steps { color: var(--muted); font-size: 0.86rem; margin-top: 12px; line-height: 1.7; }
+  .bc-steps b { color: var(--text); }
+  #bc-send { width: 100%; margin-top: 12px; }
 
   /* Wide card (odd-count row filler) */
   .card.wide { grid-column: 1 / -1; }
@@ -418,9 +435,9 @@
       <div id="calc-rows"></div>
       <div class="calc-row total"><span>Estimated total</span><span id="calc-total"></span></div>
       <div id="calc-deposit"></div>
-      <button class="book-est" id="book-est">Book This Estimate</button>
+      <button class="book-est" id="book-est">Lock This Quote &amp; Book</button>
     </div>
-    <p class="calc-note">Estimate only — your exact quote is confirmed before pickup. Tolls, parking, and airport fees are additional at cost.</p>
+    <p class="calc-note">Book it and this price locks. Tolls, parking, and airport fees are the only add-ons, billed at cost.</p>
   </div>
 </section>
 
@@ -509,7 +526,7 @@
     <div class="rule"><span class="star">✦</span><p><b>Book ahead.</b> All rides need at least 12 hours notice. Quick Trips lock in by 8 PM the night before. I'm your scheduled driver, not a same-minute app.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Deposits hold your slot.</b> Night Out, Half-Day, Full-Day — and any ride quoted over $100 — are confirmed with a 50% deposit (Cash App, Apple Pay, or PayPal). No deposit, no reservation. Cancel 24+ hours out and it comes straight back.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Cancellations.</b> Free up to 24 hours before pickup. Inside 24 hours, the deposit stays with me. No-shows owe the full fare.</p></div>
-    <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's Texas law, no exceptions.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law, no exceptions.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Respect the car.</b> No smoking or vaping. If the car needs professional cleaning after your trip, there's a $150 cleaning fee.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Payment.</b> Cash App <b>$PayRollingHills</b>, Apple Pay, PayPal (<b>@OffEarthLLc</b>), or cash — balance due at pickup. Tolls, parking, and airport fees added at cost. Hourly blocks end at the booked time.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> Need something grabbed before pickup? $10 errand fee plus the item cost, settled with your balance. Put the order in your booking.</p></div>
@@ -583,8 +600,28 @@
       <div id="form-error"></div>
       <button class="submit" type="submit">Request Booking</button>
     </form>
-    <p class="form-note">Submitting opens a pre-filled email — hit send and you're done. Larger bookings lock in once the 50% deposit lands.</p>
-    <div id="confirm-msg">Almost there — your email app just opened with the booking details. Press <strong>Send</strong> to lock in your request.</div>
+    <p class="form-note">Submitting gives you a booking code and payment instructions — your slot locks once payment proof lands.</p>
+    <div id="booking-confirm">
+      <p class="bc-title">Your booking code</p>
+      <div class="bc-code" id="bc-code">LYNX-····</div>
+      <p class="bc-code-hint">Put this code in the payment note — it ties your money to your slot.</p>
+      <p class="bc-amount" id="bc-amount"></p>
+      <div class="bc-pay">
+        <b class="head">Pay with the code in the note:</b>
+        <ul>
+          <li>Cash App — <b>$PayRollingHills</b></li>
+          <li>PayPal — <b>paypal.me/OffEarthLLc</b></li>
+          <li>Apple Pay — by request or at pickup</li>
+          <li>Cash — balance at pickup (deposit still pays ahead)</li>
+        </ul>
+      </div>
+      <p class="bc-steps">
+        <b>1.</b> Tap the button below — your booking email opens pre-filled with your code. Press Send.<br>
+        <b>2.</b> Send the payment with code <b id="bc-code2"></b> in the note.<br>
+        <b>3.</b> Reply to your booking email with the payment screenshot. <b>Your slot is held once proof lands</b> — unpaid bookings release after 60 minutes.
+      </p>
+      <button id="bc-send" class="submit" type="button">Open My Booking Email</button>
+    </div>
   </div>
 </section>
 
@@ -769,14 +806,19 @@
   });
 
   // Carry the estimate into the booking form
+  var lastQuote = null;  // set when a calculator quote is carried into the form
   document.getElementById('book-est').addEventListener('click', function () {
     var q = calcQuote();
     if (!q) return;
     document.getElementById('service').value = q.service;
     var calcRiders = document.getElementById('calc-riders').value;
     document.getElementById('riders').value = calcRiders;
+    lastQuote = {
+      service: q.service, miles: q.miles, total: q.total,
+      deposit: q.total >= PRICING.depositThreshold ? Math.ceil(q.total * PRICING.depositPct) : 0
+    };
     var notes = document.getElementById('notes');
-    var line = 'Fare calculator estimate: ' + q.service + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
+    var line = 'Locked quote: ' + q.service + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
     notes.value = notes.value ? notes.value + '\n' + line : line;
     document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
   });
@@ -789,6 +831,14 @@
   });
 
   // No backend yet: submit builds a pre-filled email (swap for Formspree/backend later)
+  // Reference code ties a payment to a booking (no ambiguous chars: 0/O, 1/I/L)
+  function genCode() {
+    var chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', s = '';
+    for (var i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return 'LYNX-' + s;
+  }
+
+  var pendingMailto = null;
   document.getElementById('booking-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var f = e.target;
@@ -796,9 +846,13 @@
     var err = validateBooking(f);
     if (err) { errBox.textContent = err; errBox.style.display = 'block'; return; }
     errBox.style.display = 'none';
-    var subject = 'Booking Request: ' + f.service.value + ' — ' + f.date.value;
+    var code = genCode();
+    var quote = (lastQuote && lastQuote.service === f.service.value) ? lastQuote : null;
+    var subject = 'Booking ' + code + ': ' + f.service.value + ' — ' + f.date.value;
     var body = [
+      'Booking code: ' + code,
       'Service: ' + f.service.value,
+      quote ? 'Locked quote: ' + money(quote.total) + ' (~' + quote.miles + ' miles)' : 'Quote: to be confirmed by reply',
       'Date: ' + f.date.value,
       'Pickup time: ' + f.time.value,
       'Pickup location: ' + f.pickup.value,
@@ -810,18 +864,33 @@
       'Phone: ' + f.phone.value,
       'Email: ' + f.email.value,
       'Riders: ' + f.riders.value,
-      'Deposit to confirm: ' + (function () {
-        var sp = PRICING[f.service.value];
-        return sp && sp.type === 'block' && sp.base >= PRICING.depositThreshold
-          ? money(Math.ceil(sp.base * PRICING.depositPct)) + ' (50% of base — mileage extras settle at pickup)'
-          : 'Only if the quoted fare tops $100 — confirmed with your quote';
-      })(),
+      'Deposit to confirm: ' + (quote
+        ? (quote.deposit > 0 ? money(quote.deposit) + ' — pay with code ' + code + ' in the note' : 'None — total due at pickup')
+        : (function () {
+            var sp = PRICING[f.service.value];
+            return sp && sp.type === 'block' && sp.base >= PRICING.depositThreshold
+              ? money(Math.ceil(sp.base * PRICING.depositPct)) + ' (50% of base — mileage extras settle at pickup)'
+              : 'Only if the quoted fare tops $100 — confirmed with your quote';
+          })()),
       '',
       'Notes: ' + (f.notes.value || 'None')
     ].join('\n');
-    window.location.href = 'mailto:book@lynxdriver.com?subject=' +
+    pendingMailto = 'mailto:book@lynxdriver.com?subject=' +
       encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    document.getElementById('confirm-msg').style.display = 'block';
+    document.getElementById('bc-code').textContent = code;
+    document.getElementById('bc-code2').textContent = code;
+    document.getElementById('bc-amount').textContent = quote
+      ? (quote.deposit > 0
+          ? 'Due now to lock: ' + money(quote.deposit) + ' · ' + money(quote.total - quote.deposit) + ' at pickup (total ' + money(quote.total) + ')'
+          : 'Total ' + money(quote.total) + ' — due at pickup, no deposit needed')
+      : 'Exact total confirmed by reply — use the fare calculator to lock it instantly next time.';
+    var panel = document.getElementById('booking-confirm');
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  document.getElementById('bc-send').addEventListener('click', function () {
+    if (pendingMailto) window.location.href = pendingMailto;
   });
 </script>
 
