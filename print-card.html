@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lynx — Print Cards (letter size)</title>
+<style>
+  @page { size: letter portrait; margin: 0.5in; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: #f2f2f2; color: #101322;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .sheet {
+    width: 7.5in; margin: 0 auto; background: #fff; padding: 0.35in 0;
+  }
+  @media screen { .sheet { margin: 24px auto; box-shadow: 0 4px 24px rgba(0,0,0,0.15); padding: 0.5in 0; } }
+
+  .screen-tip {
+    max-width: 7.5in; margin: 16px auto 0; padding: 12px 16px; background: #fff8e6;
+    border: 1px solid #e2b458; border-radius: 8px; font-size: 0.9rem; color: #5a4a1e;
+  }
+  @media print { .screen-tip { display: none; } }
+
+  .brandline { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .brandline .name b { display: block; font-size: 1.5rem; letter-spacing: 0.24em; color: #101322; }
+  .brandline .name span { display: block; font-size: 0.62rem; letter-spacing: 0.32em; text-transform: uppercase; color: #6a7086; }
+
+  /* Dashboard placard */
+  .placard {
+    width: 4.6in; margin: 0 auto; border: 2.5px solid #101322; border-radius: 14px;
+    padding: 0.28in 0.25in; text-align: center; page-break-inside: avoid;
+  }
+  .placard .tag {
+    display: inline-block; margin: 10px 0 4px; font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; color: #a37822;
+  }
+  .placard h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+  .placard img.qr { width: 2.4in; height: 2.4in; display: block; margin: 0 auto; }
+  .placard .url { font-size: 1.02rem; font-weight: 700; letter-spacing: 0.05em; margin-top: 8px; }
+  .placard .pay { font-size: 0.78rem; color: #4a5066; margin-top: 6px; }
+  .placard .pay b { color: #101322; }
+
+  .cutline {
+    border: none; border-top: 1.5px dashed #b9bdcc; margin: 0.3in 0.2in;
+  }
+  .cut-note { text-align: center; color: #8a90a4; font-size: 0.7rem; margin-bottom: 0.15in; }
+  @media print { .cut-note { color: #b9bdcc; } }
+
+  /* Handout cards */
+  .minis { display: flex; justify-content: center; gap: 0.18in; }
+  .mini {
+    width: 1.72in; border: 1.5px dashed #b9bdcc; border-radius: 10px;
+    padding: 0.14in 0.1in; text-align: center; page-break-inside: avoid;
+  }
+  .mini .mname { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; }
+  .mini .msub { font-size: 0.44rem; letter-spacing: 0.24em; text-transform: uppercase; color: #6a7086; margin-bottom: 6px; }
+  .mini img.qr { width: 1.28in; height: 1.28in; }
+  .mini .murl { font-size: 0.6rem; font-weight: 700; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="screen-tip">
+  <b>Library printer settings:</b> Print in color if you can (black &amp; white works too), 100% scale / "Actual size" — not "Fit to page". The big card is for the car; the four small ones are handouts. Laminate after cutting.
+</div>
+
+<div class="sheet">
+  <div class="placard">
+    <div class="brandline">
+      <svg width="60" height="41" viewBox="0 0 88 60" fill="none">
+        <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5" stroke="#a37822" stroke-width="1.4" opacity="0.7"/>
+        <circle cx="4" cy="52" r="2.6" fill="#101322"/><circle cx="18" cy="40" r="2" fill="#a37822"/>
+        <circle cx="30" cy="46" r="1.7" fill="#101322"/><circle cx="46" cy="28" r="2.4" fill="#a37822"/>
+        <circle cx="58" cy="33" r="1.6" fill="#101322"/><circle cx="72" cy="12" r="2" fill="#101322"/>
+        <circle cx="80" cy="18" r="1.5" fill="#a37822"/><circle cx="85" cy="5" r="2.8" fill="#a37822"/>
+      </svg>
+      <div class="name"><b>LYNX</b><span>Transportation Services</span></div>
+    </div>
+    <div class="tag">Your Personal Driver</div>
+    <h2>Scan to book your next ride</h2>
+    <img class="qr" src="booking-qr.png" alt="QR code — lynxdriver.com">
+    <div class="url">lynxdriver.com</div>
+    <div class="pay">Book direct · No surge, ever · Cash App <b>$PayRollingHills</b> &amp; Zelle accepted</div>
+  </div>
+
+  <hr class="cutline">
+  <div class="cut-note">✂ cut along dashed lines — handout cards</div>
+
+  <div class="minis">
+    <div class="mini">
+      <div class="mname">LYNX</div><div class="msub">Personal Driver</div>
+      <img class="qr" src="booking-qr.png" alt="QR"><div class="murl">lynxdriver.com</div>
+    </div>
+    <div class="mini">
+      <div class="mname">LYNX</div><div class="msub">Personal Driver</div>
+      <img class="qr" src="booking-qr.png" alt="QR"><div class="murl">lynxdriver.com</div>
+    </div>
+    <div class="mini">
+      <div class="mname">LYNX</div><div class="msub">Personal Driver</div>
+      <img class="qr" src="booking-qr.png" alt="QR"><div class="murl">lynxdriver.com</div>
+    </div>
+    <div class="mini">
+      <div class="mname">LYNX</div><div class="msub">Personal Driver</div>
+      <img class="qr" src="booking-qr.png" alt="QR"><div class="murl">lynxdriver.com</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

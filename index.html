@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lynx Transportation Services — Your Personal Driver</title>
+<meta name="description" content="Private rides and personal driver service. Book a single ride or reserve your own driver for 6 or 12 hours.">
+<meta property="og:title" content="Lynx Transportation Services — Your Personal Driver">
+<meta property="og:description" content="Private rides, morning commutes, night-out standby, and dedicated 6–12 hour driver service. Book direct — no surge, no strangers.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' fill='%23e2b458'>✦</text></svg>">
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1020;
+    --surface-2: #141a2e;
+    --line: #1e2540;
+    --text: #f2f4fa;
+    --muted: #97a0b8;
+    --accent: #e2b458;
+    --accent-deep: #c99a3f;
+    --accent-soft: rgba(226, 180, 88, 0.12);
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(6, 8, 16, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand svg { flex-shrink: 0; }
+  .brand .name { line-height: 1.25; }
+  .brand .name b { display: block; font-size: 1.02rem; letter-spacing: 0.22em; font-weight: 700; }
+  .brand .name span { display: block; font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+  .nav a.book-btn {
+    background: var(--accent); color: #14100a; text-decoration: none;
+    padding: 10px 22px; border-radius: 100px; font-weight: 700; font-size: 0.9rem;
+    transition: opacity 0.2s; white-space: nowrap;
+  }
+  .nav a.book-btn:hover { opacity: 0.85; }
+
+  /* Hero */
+  .hero-shell { position: relative; overflow: hidden; }
+  .stars { position: absolute; inset: 0; pointer-events: none; }
+  .stars i {
+    position: absolute; width: 2px; height: 2px; border-radius: 50%;
+    background: #fff; opacity: 0.55; animation: twinkle 4s ease-in-out infinite;
+  }
+  .stars i:nth-child(odd) { width: 1px; height: 1px; animation-duration: 6s; }
+  @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.7; } }
+  .hero { position: relative; padding: 84px 0 64px; text-align: center; }
+  .hero .mark { margin-bottom: 26px; }
+  .hero .kicker {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 100px; margin-bottom: 22px;
+  }
+  .hero h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p.sub { color: var(--muted); font-size: 1.1rem; max-width: 560px; margin: 18px auto 34px; }
+  .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: #14100a; text-decoration: none; font-weight: 700;
+    padding: 15px 34px; border-radius: 100px; font-size: 1rem; transition: transform 0.15s, opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-ghost {
+    color: var(--text); text-decoration: none; font-weight: 600;
+    padding: 15px 34px; border-radius: 100px; font-size: 1rem;
+    border: 1px solid var(--line); transition: border-color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--muted); }
+  .hero .trust { margin-top: 30px; color: var(--muted); font-size: 0.88rem; }
+
+  /* Services */
+  section { padding: 56px 0; }
+  .section-title { text-align: center; font-size: 1.7rem; font-weight: 700; margin-bottom: 8px; }
+  .section-sub { text-align: center; color: var(--muted); margin-bottom: 40px; }
+  .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px 24px; position: relative; transition: border-color 0.2s, transform 0.15s;
+  }
+  .card:hover { border-color: #2e3860; transform: translateY(-2px); }
+  .card.featured { border-color: var(--accent); }
+  .card .tag {
+    position: absolute; top: -11px; left: 24px; background: var(--accent); color: #14100a;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 12px; border-radius: 100px;
+  }
+  .card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  .card .duration { color: var(--accent); font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
+  .card .price { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+  .card .price small { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
+  .card .price-note { color: var(--muted); font-size: 0.78rem; margin-bottom: 14px; }
+  .card p { color: var(--muted); font-size: 0.93rem; margin-bottom: 18px; }
+  .card ul { list-style: none; margin-bottom: 22px; }
+  .card ul li { color: var(--muted); font-size: 0.9rem; padding: 5px 0 5px 24px; position: relative; }
+  .card ul li::before { content: "✦"; color: var(--accent); position: absolute; left: 2px; font-size: 0.8rem; }
+  .card a.select {
+    display: block; text-align: center; text-decoration: none; color: var(--text);
+    border: 1px solid var(--line); border-radius: 100px; padding: 11px; font-weight: 600; font-size: 0.92rem;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .card a.select:hover { background: var(--accent); border-color: var(--accent); color: #14100a; }
+
+  /* How it works */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+  .step { text-align: center; padding: 10px; }
+  .step .num {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem;
+    margin: 0 auto 14px;
+  }
+  .step h4 { font-size: 1rem; margin-bottom: 6px; }
+  .step p { color: var(--muted); font-size: 0.9rem; }
+
+  /* Booking form */
+  #book { scroll-margin-top: 80px; }
+  .form-shell {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 34px 28px; max-width: 640px; margin: 0 auto;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 0.83rem; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; }
+  .field input, .field select, .field textarea {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); padding: 12px 14px; font-size: 0.95rem; font-family: inherit;
+    outline: none; transition: border-color 0.2s; width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .field input::placeholder, .field textarea::placeholder { color: #556; }
+  .field select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2397a0b8' stroke-width='2' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+  .field textarea { resize: vertical; min-height: 90px; }
+  button.submit {
+    grid-column: 1 / -1; background: var(--accent); color: #14100a; border: none; cursor: pointer;
+    padding: 15px; border-radius: 100px; font-size: 1rem; font-weight: 700; font-family: inherit;
+    margin-top: 6px; transition: opacity 0.2s;
+  }
+  button.submit:hover { opacity: 0.88; }
+  .form-note { text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 14px; }
+  #confirm-msg {
+    display: none; text-align: center; background: var(--accent-soft); color: var(--text);
+    border: 1px solid var(--accent); border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 0.92rem;
+  }
+
+  /* Wide card (odd-count row filler) */
+  .card.wide { grid-column: 1 / -1; }
+
+  /* Passes & credits */
+  .pass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 760px) { .pass-grid { grid-template-columns: 1fr; } }
+  .fine-print { text-align: center; color: var(--muted); font-size: 0.8rem; max-width: 620px; margin: 22px auto 0; }
+
+  /* Availability calendar */
+  #availability { scroll-margin-top: 80px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; max-width: 760px; margin: 0 auto; }
+  @media (max-width: 640px) { .cal-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .cal-day {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 4px; text-align: center; cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+  }
+  .cal-day:hover { border-color: var(--muted); transform: translateY(-1px); }
+  .cal-day .dow { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .cal-day .dnum { font-weight: 700; font-size: 1.05rem; margin: 2px 0; }
+  .cal-day .status { font-size: 0.66rem; color: #7ec97e; line-height: 1.3; }
+  .cal-day.partial { border-color: var(--accent); }
+  .cal-day.partial .status { color: var(--accent); }
+  .cal-day.full { opacity: 0.45; cursor: not-allowed; }
+  .cal-day.full .status { color: var(--muted); }
+  .cal-legend { display: flex; gap: 18px; justify-content: center; margin-top: 16px; color: var(--muted); font-size: 0.8rem; flex-wrap: wrap; }
+  .cal-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+
+  /* House rules */
+  .rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 22px; max-width: 800px; margin: 0 auto; }
+  @media (max-width: 640px) { .rules { grid-template-columns: 1fr; } }
+  .rule { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .rule .star { color: var(--accent); font-size: 0.9rem; line-height: 1.6; }
+  .rules .rule:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .rule p { color: var(--muted); font-size: 0.88rem; }
+  .rule p b { color: var(--text); }
+
+  /* Form error */
+  #form-error {
+    display: none; grid-column: 1 / -1; text-align: center; background: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b; color: #ffb3b3; border-radius: 10px; padding: 12px; font-size: 0.9rem;
+  }
+
+  /* Fare calculator */
+  #quote { scroll-margin-top: 80px; }
+  .calc-check { flex-direction: row; align-items: center; gap: 10px; }
+  .calc-check input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .calc-check label { font-size: 0.9rem; font-weight: 500; color: var(--text); cursor: pointer; }
+  #calc-result { display: none; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .calc-row { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 0.92rem; padding: 4px 0; }
+  .calc-row.total { color: var(--text); font-weight: 700; font-size: 1.2rem; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; }
+  .calc-row.total span:last-child { color: var(--accent); }
+  .calc-note { color: var(--muted); font-size: 0.78rem; margin-top: 12px; text-align: center; }
+  #calc-deposit { display: none; text-align: center; color: var(--accent); font-size: 0.88rem; font-weight: 600; margin-top: 10px; }
+  button.book-est {
+    display: block; width: 100%; margin-top: 14px; background: transparent; cursor: pointer;
+    border: 1px solid var(--accent); color: var(--accent); padding: 12px; border-radius: 100px;
+    font-weight: 700; font-size: 0.95rem; font-family: inherit; transition: background 0.2s, color 0.2s;
+  }
+  button.book-est:hover { background: var(--accent); color: #14100a; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 34px 0; text-align: center; color: var(--muted); font-size: 0.85rem; }
+  footer .foot-brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; color: var(--text); }
+  footer .foot-brand b { letter-spacing: 0.2em; font-size: 0.95rem; }
+
+  @media (max-width: 560px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .hero { padding: 56px 0 44px; }
+    .brand .name b { font-size: 0.95rem; letter-spacing: 0.18em; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <!-- Lynx constellation mark -->
+      <svg width="44" height="30" viewBox="0 0 88 60" fill="none" aria-hidden="true">
+        <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5"
+                  stroke="#e2b458" stroke-width="1.2" opacity="0.55"/>
+        <circle cx="4"  cy="52" r="2.6" fill="#f2f4fa"/>
+        <circle cx="18" cy="40" r="2"   fill="#e2b458"/>
+        <circle cx="30" cy="46" r="1.7" fill="#f2f4fa"/>
+        <circle cx="46" cy="28" r="2.4" fill="#e2b458"/>
+        <circle cx="58" cy="33" r="1.6" fill="#f2f4fa"/>
+        <circle cx="72" cy="12" r="2"   fill="#f2f4fa"/>
+        <circle cx="80" cy="18" r="1.5" fill="#e2b458"/>
+        <circle cx="85" cy="5"  r="2.8" fill="#e2b458"/>
+      </svg>
+      <div class="name"><b>LYNX</b><span>Transportation Services</span></div>
+    </div>
+    <a class="book-btn" href="#book">Book Now</a>
+  </div>
+</header>
+
+<div class="hero-shell">
+  <div class="stars" id="starfield"></div>
+  <section class="hero wrap">
+    <div class="mark">
+      <svg width="150" height="102" viewBox="0 0 88 60" fill="none" aria-label="Lynx constellation">
+        <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5"
+                  stroke="#e2b458" stroke-width="1" opacity="0.55"/>
+        <circle cx="4"  cy="52" r="2.6" fill="#f2f4fa"/>
+        <circle cx="18" cy="40" r="2"   fill="#e2b458"/>
+        <circle cx="30" cy="46" r="1.7" fill="#f2f4fa"/>
+        <circle cx="46" cy="28" r="2.4" fill="#e2b458"/>
+        <circle cx="58" cy="33" r="1.6" fill="#f2f4fa"/>
+        <circle cx="72" cy="12" r="2"   fill="#f2f4fa"/>
+        <circle cx="80" cy="18" r="1.5" fill="#e2b458"/>
+        <circle cx="85" cy="5"  r="2.8" fill="#e2b458"/>
+      </svg>
+    </div>
+    <span class="kicker">Private Driver Service</span>
+    <h1>Your personal driver.<br><em>On your schedule.</em></h1>
+    <p class="sub">Skip the app roulette. Ride with the same professional driver every time — single trips, or reserve your own dedicated driver for 6 to 12 hours.</p>
+    <div class="cta-row">
+      <a class="btn-primary" href="#book">Book a Ride</a>
+      <a class="btn-ghost" href="#quote">Estimate My Fare</a>
+    </div>
+    <p class="trust">Clean, comfortable ride &nbsp;·&nbsp; Professional &amp; discreet &nbsp;·&nbsp; On time, every time</p>
+  </section>
+</div>
+
+<section id="services" class="wrap">
+  <h2 class="section-title">Choose Your Service</h2>
+  <p class="section-sub">From a quick trip across town to a full day with your own driver.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Personal Ride</h3>
+      <div class="duration">Point A → Point B</div>
+      <div class="price">$30 <small>minimum</small></div>
+      <div class="price-note">$2 per mile · minimum covers your first 15 miles</div>
+      <p>A private, comfortable ride wherever you need to go. No surge pricing games, no stranger lottery.</p>
+      <ul>
+        <li>Door-to-door service</li>
+        <li>Quiet, spotless ride</li>
+        <li>Airport runs welcome</li>
+      </ul>
+      <a class="select" href="#book" data-service="Personal Ride">Book This</a>
+    </div>
+    <div class="card featured">
+      <span class="tag">Most Popular</span>
+      <h3>Half-Day Driver</h3>
+      <div class="duration">6 Hours · Dedicated</div>
+      <div class="price">$150</div>
+      <div class="price-note">First 60 miles included · then $1 per mile</div>
+      <p>Your driver for the day's first half. Errands, meetings, appointments, events — I wait while you handle business.</p>
+      <ul>
+        <li>Unlimited stops</li>
+        <li>Driver waits on standby</li>
+        <li>Flexible routing all day</li>
+      </ul>
+      <a class="select" href="#book" data-service="Half-Day Driver (6 Hours)">Book This</a>
+    </div>
+    <div class="card">
+      <h3>Full-Day Driver</h3>
+      <div class="duration">12 Hours · Dedicated</div>
+      <div class="price">$280</div>
+      <div class="price-note">First 120 miles included · then $1 per mile</div>
+      <p>A full day with your own personal driver. Perfect for packed schedules, out-of-town guests, or special occasions.</p>
+      <ul>
+        <li>Everything in Half-Day</li>
+        <li>Morning to night coverage</li>
+        <li>Multi-city trips possible</li>
+      </ul>
+      <a class="select" href="#book" data-service="Full-Day Driver (12 Hours)">Book This</a>
+    </div>
+    <div class="card">
+      <h3>Night Out</h3>
+      <div class="duration">Up to 4 Hours · Evening Standby</div>
+      <div class="price">$140</div>
+      <div class="price-note">First 40 miles included · then $1 per mile</div>
+      <p>Your designated driver for the whole night. I wait outside the venue — one text and the car is out front.</p>
+      <ul>
+        <li>Driver on standby all night</li>
+        <li>Hop venues without a new ride each time</li>
+        <li>Everyone gets home safe</li>
+      </ul>
+      <a class="select" href="#book" data-service="Night Out (Up to 4 Hours)">Book This</a>
+    </div>
+    <div class="card wide">
+      <h3>Quick Trip</h3>
+      <div class="duration">Commuter Special · Booked by 8 PM the night before</div>
+      <div class="price">$25 <small>flat</small></div>
+      <div class="price-note">Up to 12 miles · then $2 per mile · perfect for the morning ride to work</div>
+      <p>Same driver, same time, every morning if you want it. Lock in a standing weekday pickup and never gamble on a surge-priced commute again.</p>
+      <ul>
+        <li>Guaranteed on-time morning pickup</li>
+        <li>Standing weekly schedule available</li>
+        <li>Cheaper than surge — every single day</li>
+      </ul>
+      <a class="select" href="#book" data-service="Quick Trip (Commuter)">Book This</a>
+    </div>
+  </div>
+</section>
+
+<section id="quote" class="wrap">
+  <h2 class="section-title">Fare Calculator</h2>
+  <p class="section-sub">Know your total before you book. No surprises — for you or for us.</p>
+  <div class="form-shell">
+    <div class="form-grid">
+      <div class="field full">
+        <label for="calc-service">Service</label>
+        <select id="calc-service">
+          <option>Personal Ride</option>
+          <option>Quick Trip (Commuter)</option>
+          <option>Night Out (Up to 4 Hours)</option>
+          <option>Half-Day Driver (6 Hours)</option>
+          <option>Full-Day Driver (12 Hours)</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="calc-miles" id="calc-miles-label">Estimated miles (one-way)</label>
+        <input type="number" id="calc-miles" min="0" step="1" placeholder="Check your maps app — e.g. 12">
+      </div>
+      <div class="field full">
+        <label for="calc-riders">Riders (first two included, +$5 each after)</label>
+        <select id="calc-riders">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+      <div class="field full calc-check">
+        <input type="checkbox" id="calc-oneway">
+        <label for="calc-oneway">One-way drop-off 50+ miles away (adds return-trip travel)</label>
+      </div>
+      <div class="field full calc-check">
+        <input type="checkbox" id="calc-errand">
+        <label for="calc-errand">Pre-pickup errand — coffee run, store stop (+$10, items billed at cost)</label>
+      </div>
+    </div>
+    <div id="calc-result">
+      <div id="calc-rows"></div>
+      <div class="calc-row total"><span>Estimated total</span><span id="calc-total"></span></div>
+      <div id="calc-deposit"></div>
+      <button class="book-est" id="book-est">Book This Estimate</button>
+    </div>
+    <p class="calc-note">Estimate only — your exact quote is confirmed before pickup. Tolls, parking, and airport fees are additional at cost.</p>
+  </div>
+</section>
+
+<section id="passes" class="wrap">
+  <h2 class="section-title">Passes &amp; Credits</h2>
+  <p class="section-sub">Pay ahead, ride easy. Credits stay on your tab until you use them.</p>
+  <div class="pass-grid">
+    <div class="card">
+      <h3>4-Ride Pack</h3>
+      <div class="duration">Quick Trips · $20 per ride</div>
+      <div class="price">$80</div>
+      <div class="price-note">Save $20 vs booking one at a time</div>
+      <ul>
+        <li>Four commuter rides, any weekdays</li>
+        <li>Credits roll over — no expiration</li>
+        <li>Text the night before to schedule</li>
+      </ul>
+      <a class="select" href="mailto:matthewhilljr56@gmail.com?subject=Pass%20Request%3A%204-Ride%20Pack%20(%2480)&body=Name%3A%0APhone%3A%0AUsual%20pickup%20address%3A%0AUsual%20destination%3A%0APreferred%20days%2Ftimes%3A">Get This Pack</a>
+    </div>
+    <div class="card featured">
+      <span class="tag">Best Value</span>
+      <h3>Weekly Commuter Pass</h3>
+      <div class="duration">Mon–Fri Mornings · $20 per ride</div>
+      <div class="price">$100</div>
+      <div class="price-note">Your time slot, locked all week</div>
+      <ul>
+        <li>Same driver, same time, every morning</li>
+        <li>Priority over single bookings</li>
+        <li>Limited slots — morning seats are few</li>
+      </ul>
+      <a class="select" href="mailto:matthewhilljr56@gmail.com?subject=Pass%20Request%3A%20Weekly%20Commuter%20Pass%20(%24100)&body=Name%3A%0APhone%3A%0APickup%20address%3A%0ADestination%3A%0APickup%20time%20(Mon%E2%80%93Fri)%3A">Claim a Slot</a>
+    </div>
+    <div class="card">
+      <h3>Open Credit</h3>
+      <div class="duration">Any Amount · Any Service</div>
+      <div class="price">$50+</div>
+      <div class="price-note">Load a tab, spend it on any ride</div>
+      <ul>
+        <li>Works on every service, even Night Out</li>
+        <li>Leftover balance rolls to next time</li>
+        <li>Great as a gift for someone carless</li>
+      </ul>
+      <a class="select" href="mailto:matthewhilljr56@gmail.com?subject=Start%20a%20Ride%20Tab&body=Name%3A%0APhone%3A%0AAmount%20to%20load%3A%20%24">Start a Tab</a>
+    </div>
+  </div>
+  <p class="fine-print">Passes and credits activate once prepaid by Cash App ($PayRollingHills) or Zelle. Your balance rolls over and never expires. Pack rates are honored for 90 days — after that, any remaining balance converts to dollar credit at current prices. Credits are prepayment, not priority: all rides book through the normal notice rules and calendar. Pass slots are capacity-limited — when the morning window is full, it's full.</p>
+</section>
+
+<section id="availability" class="wrap">
+  <h2 class="section-title">Availability</h2>
+  <p class="section-sub">Next two weeks at a glance. Tap an open day to start your booking.</p>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="cal-legend">
+    <span><i style="background:#7ec97e"></i>Open</span>
+    <span><i style="background:var(--accent)"></i>Partially booked</span>
+    <span><i style="background:#555c72"></i>Fully booked</span>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-sub">Three steps. No apps to download.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h4>Request Your Booking</h4>
+      <p>Fill out the form below with your date, time, and service.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h4>Get Confirmed</h4>
+      <p>You'll hear back fast to confirm details and lock in your time.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h4>Ride</h4>
+      <p>Your car arrives on time. Sit back — you've got a driver now.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="section-title">House Rules</h2>
+  <p class="section-sub">Scheduled service, not an on-demand app — here's how we keep it smooth.</p>
+  <div class="rules">
+    <div class="rule"><span class="star">✦</span><p><b>Book ahead.</b> All rides need at least 12 hours notice. Quick Trips lock in by 8 PM the night before. I'm your scheduled driver, not a same-minute app.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Deposits hold your slot.</b> Night Out, Half-Day, Full-Day — and any ride quoted over $100 — are confirmed with a 50% deposit (Zelle or Cash App). No deposit, no reservation. Cancel 24+ hours out and it comes straight back.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Cancellations.</b> Free up to 24 hours before pickup. Inside 24 hours, the deposit stays with me. No-shows owe the full fare.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's Texas law, no exceptions.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Respect the car.</b> No smoking or vaping. If the car needs professional cleaning after your trip, there's a $150 cleaning fee.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Payment.</b> Cash App <b>$PayRollingHills</b>, Zelle, or cash — balance due at pickup. Tolls, parking, and airport fees added at cost. Hourly blocks end at the booked time.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> Need something grabbed before pickup? $10 errand fee plus the item cost, settled with your balance. Put the order in your booking.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Plan your stops.</b> Multi-stop night? List every address in the booking form and the whole route is locked before I arrive — no mid-ride guesswork.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Driver's discretion.</b> I can decline any ride where safety or respect is in question. Credits are prepayment, not priority — every booking still follows the notice rules and the calendar. If I ever end a booking relationship, your unused balance comes back to you in full.</p></div>
+  </div>
+</section>
+
+<section id="book" class="wrap">
+  <h2 class="section-title">Book Your Ride</h2>
+  <p class="section-sub">Tell me what you need — I'll confirm within the hour during business hours.</p>
+  <div class="form-shell">
+    <form id="booking-form" class="form-grid">
+      <div class="field full">
+        <label for="service">Service</label>
+        <select id="service" name="service" required>
+          <option value="" disabled selected>Select a service…</option>
+          <option>Personal Ride</option>
+          <option>Quick Trip (Commuter)</option>
+          <option>Night Out (Up to 4 Hours)</option>
+          <option>Half-Day Driver (6 Hours)</option>
+          <option>Full-Day Driver (12 Hours)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required>
+      </div>
+      <div class="field">
+        <label for="time">Pickup Time</label>
+        <input type="time" id="time" name="time" required>
+      </div>
+      <div class="field full">
+        <label for="pickup">Pickup Location</label>
+        <input type="text" id="pickup" name="pickup" placeholder="Address or landmark" required>
+      </div>
+      <div class="field full">
+        <label for="dropoff">Destination (optional for hourly bookings)</label>
+        <input type="text" id="dropoff" name="dropoff" placeholder="Where are we headed?">
+      </div>
+      <div class="field full">
+        <label for="stops">Planned stops (optional)</label>
+        <textarea id="stops" name="stops" placeholder="Have the night mapped out? One stop per line — address + rough time if it matters."></textarea>
+      </div>
+      <div class="field full">
+        <label for="errand">Pre-pickup errand (optional · +$10 + item cost)</label>
+        <input type="text" id="errand" name="errand" placeholder="Starbucks order, pharmacy grab — tell me what and where">
+      </div>
+      <div class="field">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" placeholder="Full name" required>
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" placeholder="(555) 555-5555" required>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@email.com" required>
+      </div>
+      <div class="field">
+        <label for="riders">Riders</label>
+        <select id="riders" name="riders" required>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" placeholder="Luggage, extra passengers, special requests…"></textarea>
+      </div>
+      <div id="form-error"></div>
+      <button class="submit" type="submit">Request Booking</button>
+    </form>
+    <p class="form-note">Submitting opens a pre-filled email — hit send and you're done. Larger bookings lock in once the 50% deposit lands.</p>
+    <div id="confirm-msg">Almost there — your email app just opened with the booking details. Press <strong>Send</strong> to lock in your request.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-brand">
+      <svg width="36" height="25" viewBox="0 0 88 60" fill="none" aria-hidden="true">
+        <polyline points="4,52 18,40 30,46 46,28 58,33 72,12 80,18 85,5"
+                  stroke="#e2b458" stroke-width="1.2" opacity="0.55"/>
+        <circle cx="4" cy="52" r="2.6" fill="#f2f4fa"/><circle cx="18" cy="40" r="2" fill="#e2b458"/>
+        <circle cx="30" cy="46" r="1.7" fill="#f2f4fa"/><circle cx="46" cy="28" r="2.4" fill="#e2b458"/>
+        <circle cx="58" cy="33" r="1.6" fill="#f2f4fa"/><circle cx="72" cy="12" r="2" fill="#f2f4fa"/>
+        <circle cx="80" cy="18" r="1.5" fill="#e2b458"/><circle cx="85" cy="5" r="2.8" fill="#e2b458"/>
+      </svg>
+      <b>LYNX</b>
+    </div>
+    <p>Private rides &amp; personal driver service · © 2026 Lynx Transportation Services</p>
+  </div>
+</footer>
+
+<script>
+  // Subtle random starfield in the hero (seeded positions, generated once per load)
+  (function () {
+    var field = document.getElementById('starfield');
+    for (var i = 0; i < 60; i++) {
+      var s = document.createElement('i');
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.top = (Math.random() * 100) + '%';
+      s.style.animationDelay = (Math.random() * 5) + 's';
+      field.appendChild(s);
+    }
+  })();
+
+  // ---- Availability & booking rules ----
+  // Update BOOKINGS after each confirmed booking:
+  //   'YYYY-MM-DD': 'full'                      → whole day blocked
+  //   'YYYY-MM-DD': [['09:00','15:00'], ...]    → those 24h time windows blocked
+  var BOOKINGS = {};
+  var LEAD_HOURS = 12;   // minimum notice for any booking
+  var SERVICE_LENGTH_HRS = {
+    'Personal Ride': 1, 'Quick Trip (Commuter)': 1,
+    'Night Out (Up to 4 Hours)': 4, 'Half-Day Driver (6 Hours)': 6, 'Full-Day Driver (12 Hours)': 12
+  };
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function toMin(t) { var p = t.split(':'); return +p[0] * 60 + +p[1]; }
+
+  // 14-day availability calendar
+  (function renderCal() {
+    var grid = document.getElementById('cal-grid');
+    var dows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var today = new Date();
+    document.getElementById('date').min =
+      today.getFullYear() + '-' + pad2(today.getMonth() + 1) + '-' + pad2(today.getDate());
+    for (var i = 0; i < 14; i++) {
+      var d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+      var key = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+      var b = BOOKINGS[key], cls = '', status = 'Open';
+      if (b === 'full') { cls = 'full'; status = 'Booked'; }
+      else if (Array.isArray(b)) {
+        cls = 'partial';
+        status = 'Busy ' + b.map(function (r) { return r[0] + '–' + r[1]; }).join(', ');
+      }
+      var el = document.createElement('div');
+      el.className = 'cal-day' + (cls ? ' ' + cls : '');
+      el.innerHTML = '<div class="dow">' + dows[d.getDay()] + '</div><div class="dnum">' + d.getDate() +
+                     '</div><div class="status">' + status + '</div>';
+      if (cls !== 'full') {
+        (function (k) {
+          el.addEventListener('click', function () {
+            document.getElementById('date').value = k;
+            document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
+          });
+        })(key);
+      }
+      grid.appendChild(el);
+    }
+  })();
+
+  function validateBooking(f) {
+    var when = new Date(f.date.value + 'T' + f.time.value);
+    if (when.getTime() - Date.now() < LEAD_HOURS * 3600000)
+      return 'Bookings need at least ' + LEAD_HOURS + ' hours notice — pick a later time.';
+    var b = BOOKINGS[f.date.value];
+    if (b === 'full') return 'That day is fully booked — pick another from the availability calendar.';
+    if (Array.isArray(b)) {
+      var s = toMin(f.time.value), e = s + (SERVICE_LENGTH_HRS[f.service.value] || 1) * 60;
+      for (var i = 0; i < b.length; i++) {
+        if (s < toMin(b[i][1]) && toMin(b[i][0]) < e)
+          return 'That time overlaps a booked slot (' + b[i][0] + '–' + b[i][1] + ') — check the availability calendar.';
+      }
+    }
+    return null;
+  }
+
+  // ---- Fare calculator ----
+  // All pricing lives here — change a number, the whole site follows.
+  var PRICING = {
+    'Personal Ride':               { type: 'ride',  minFare: 30,  perMile: 2 },
+    'Quick Trip (Commuter)':       { type: 'block', base: 25,  includedMiles: 12,  extraPerMile: 2 },
+    'Night Out (Up to 4 Hours)':   { type: 'block', base: 140, includedMiles: 40,  extraPerMile: 1 },
+    'Half-Day Driver (6 Hours)':   { type: 'block', base: 150, includedMiles: 60,  extraPerMile: 1 },
+    'Full-Day Driver (12 Hours)':  { type: 'block', base: 280, includedMiles: 120, extraPerMile: 1 },
+    deadheadPerMile: 0.75,   // billed on one-way drop-offs 50+ miles out (empty return trip)
+    deadheadThreshold: 50,
+    errandFee: 10,           // pre-pickup coffee/store run; items billed at cost
+    includedRiders: 2,       // riders 3 and 4 add a small crew fee
+    extraRiderFee: 5,
+    depositPct: 0.5,         // 50% down locks the slot
+    depositThreshold: 100    // rides under $100 skip the deposit; blocks always take one
+  };
+
+  function money(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
+
+  function calcQuote() {
+    var service = document.getElementById('calc-service').value;
+    var miles = parseFloat(document.getElementById('calc-miles').value);
+    var oneway = document.getElementById('calc-oneway').checked;
+    var result = document.getElementById('calc-result');
+    var p = PRICING[service];
+
+    // Day bookings usually loop back home, so miles = total for the day
+    document.getElementById('calc-miles-label').textContent =
+      p.type === 'ride' || service.indexOf('Quick') === 0 ? 'Estimated miles (one-way)' :
+      service.indexOf('Night') === 0 ? 'Estimated total miles for the night' :
+      'Estimated total miles for the day';
+
+    if (isNaN(miles) || miles <= 0) { result.style.display = 'none'; return null; }
+
+    var rows = [], total = 0;
+    if (p.type === 'ride') {
+      var fare = Math.max(p.minFare, miles * p.perMile);
+      rows.push([miles + ' miles × ' + money(p.perMile) + '/mi' + (fare === p.minFare ? ' (minimum applies)' : ''), money(fare)]);
+      total += fare;
+    } else {
+      rows.push([service + ' — first ' + p.includedMiles + ' miles included', money(p.base)]);
+      total += p.base;
+      var extra = Math.max(0, miles - p.includedMiles);
+      if (extra > 0) {
+        var extraCost = extra * p.extraPerMile;
+        rows.push([extra + ' extra miles × ' + money(p.extraPerMile) + '/mi', money(extraCost)]);
+        total += extraCost;
+      }
+    }
+    if (oneway && miles >= PRICING.deadheadThreshold) {
+      var dh = miles * PRICING.deadheadPerMile;
+      rows.push(['Return travel (one-way drop-off) ' + miles + ' mi × ' + money(PRICING.deadheadPerMile) + '/mi', money(dh)]);
+      total += dh;
+    }
+    if (document.getElementById('calc-errand').checked) {
+      rows.push(['Pre-pickup errand fee (items billed at cost)', money(PRICING.errandFee)]);
+      total += PRICING.errandFee;
+    }
+    var riders = +document.getElementById('calc-riders').value;
+    if (riders > PRICING.includedRiders) {
+      var extraRiders = riders - PRICING.includedRiders;
+      var crewFee = extraRiders * PRICING.extraRiderFee;
+      rows.push([extraRiders + ' extra rider' + (extraRiders > 1 ? 's' : '') + ' × ' + money(PRICING.extraRiderFee), money(crewFee)]);
+      total += crewFee;
+    }
+
+    document.getElementById('calc-rows').innerHTML = rows.map(function (r) {
+      return '<div class="calc-row"><span>' + r[0] + '</span><span>' + r[1] + '</span></div>';
+    }).join('');
+    document.getElementById('calc-total').textContent = money(total);
+    var depEl = document.getElementById('calc-deposit');
+    if (total >= PRICING.depositThreshold) {
+      var dep = Math.ceil(total * PRICING.depositPct);
+      depEl.textContent = 'Lock it in with ' + money(dep) + ' down · ' + money(total - dep) + ' due at pickup';
+      depEl.style.display = 'block';
+    } else {
+      depEl.style.display = 'none';
+    }
+    result.style.display = 'block';
+    return { service: service, miles: miles, total: total };
+  }
+
+  ['calc-service', 'calc-miles', 'calc-riders', 'calc-oneway', 'calc-errand'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', calcQuote);
+    el.addEventListener('change', calcQuote);
+  });
+
+  // Carry the estimate into the booking form
+  document.getElementById('book-est').addEventListener('click', function () {
+    var q = calcQuote();
+    if (!q) return;
+    document.getElementById('service').value = q.service;
+    var calcRiders = document.getElementById('calc-riders').value;
+    document.getElementById('riders').value = calcRiders;
+    var notes = document.getElementById('notes');
+    var line = 'Fare calculator estimate: ' + q.service + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
+    notes.value = notes.value ? notes.value + '\n' + line : line;
+    document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Pre-select the service when a "Book This" card button is clicked
+  document.querySelectorAll('a.select').forEach(function (a) {
+    a.addEventListener('click', function () {
+      document.getElementById('service').value = a.dataset.service;
+    });
+  });
+
+  // No backend yet: submit builds a pre-filled email (swap for Formspree/backend later)
+  document.getElementById('booking-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var errBox = document.getElementById('form-error');
+    var err = validateBooking(f);
+    if (err) { errBox.textContent = err; errBox.style.display = 'block'; return; }
+    errBox.style.display = 'none';
+    var subject = 'Booking Request: ' + f.service.value + ' — ' + f.date.value;
+    var body = [
+      'Service: ' + f.service.value,
+      'Date: ' + f.date.value,
+      'Pickup time: ' + f.time.value,
+      'Pickup location: ' + f.pickup.value,
+      'Destination: ' + (f.dropoff.value || 'N/A'),
+      'Planned stops: ' + (f.stops.value ? '\n  ' + f.stops.value.split('\n').join('\n  ') : 'None'),
+      'Pre-pickup errand: ' + (f.errand.value || 'None'),
+      '',
+      'Name: ' + f.name.value,
+      'Phone: ' + f.phone.value,
+      'Email: ' + f.email.value,
+      'Riders: ' + f.riders.value,
+      'Deposit to confirm: ' + (function () {
+        var sp = PRICING[f.service.value];
+        return sp && sp.type === 'block' && sp.base >= PRICING.depositThreshold
+          ? money(Math.ceil(sp.base * PRICING.depositPct)) + ' (50% of base — mileage extras settle at pickup)'
+          : 'Only if the quoted fare tops $100 — confirmed with your quote';
+      })(),
+      '',
+      'Notes: ' + (f.notes.value || 'None')
+    ].join('\n');
+    window.location.href = 'mailto:matthewhilljr56@gmail.com?subject=' +
+      encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    document.getElementById('confirm-msg').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
