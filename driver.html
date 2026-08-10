@@ -133,7 +133,10 @@
       <div><label for="su-promo">Promo code used</label><input type="text" id="su-promo" placeholder="If any" style="text-transform:uppercase"></div>
     </div>
     <div class="row2">
-      <div class="check-row"><input type="checkbox" id="su-clean"><label for="su-clean">$300 deep-clean fee</label></div>
+      <div>
+        <div class="check-row"><input type="checkbox" id="su-clean"><label for="su-clean">$300 deep-clean</label></div>
+        <div class="check-row" style="margin-top:8px;"><input type="checkbox" id="su-rush"><label for="su-rush">$20 rush fee</label></div>
+      </div>
       <div><label for="su-paid">Already paid $</label><input type="number" id="su-paid" min="0" step="0.01" placeholder="Deposit + credits"></div>
     </div>
     <div class="row2">
@@ -269,6 +272,7 @@
     if (tl > 0) { rows.push(['Tolls / parking at cost', m(tl)]); tot += tl; }
     var itc = parseFloat(document.getElementById('su-items').value) || 0;
     if (itc > 0) { rows.push(['Items fronted at cost', m(itc)]); tot += itc; }
+    if (document.getElementById('su-rush').checked) { rows.push(['Rush fee', m(20)]); tot += 20; }
     if (document.getElementById('su-clean').checked) { rows.push(['Deep-clean fee', m(P.cleanFee)]); tot += P.cleanFee; }
     var tip = parseFloat(document.getElementById('su-tip').value) || 0;
     if (tip > 0) { rows.push(['Tip 💛', m(tip)]); tot += tip; }
@@ -282,7 +286,7 @@
     document.getElementById('su-total-label').textContent = tot >= 0 ? 'Balance due' : 'Refund to rider';
     document.getElementById('su-total').textContent = m(Math.abs(tot));
   }
-  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-clean', 'su-paid', 'su-tab', 'su-tip'].forEach(function (id) {
+  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-clean', 'su-rush', 'su-paid', 'su-tab', 'su-tip'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', settle);
     el.addEventListener('change', settle);

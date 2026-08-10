@@ -487,6 +487,10 @@
         <input type="checkbox" id="calc-errand">
         <label for="calc-errand">Pre-pickup errand (+$10 — order ahead in the store's app; anything I pay for is added to your bill)</label>
       </div>
+      <div class="field full calc-check">
+        <input type="checkbox" id="calc-rush">
+        <label for="calc-rush">Rush ride — pickup is less than 12 hours away (+$20 · subject to availability &amp; where I am — call/text <b>213-421-8619</b> for a quick quote)</label>
+      </div>
     </div>
     <div id="calc-result">
       <div id="calc-rows"></div>
@@ -580,7 +584,7 @@
   <h2 class="section-title">House Rules</h2>
   <p class="section-sub">Scheduled service, not an on-demand app — here's how we keep it smooth.</p>
   <div class="rules">
-    <div class="rule"><span class="star">✦</span><p><b>Book ahead.</b> All rides need at least 12 hours notice. Quick Trips lock in by 8 PM the night before. I'm your scheduled driver, not a same-minute app.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Book ahead.</b> Standard bookings need 12 hours notice; Quick Trips lock in by 8 PM the night before. Inside 12 hours? That's a <b>Rush Ride</b> — +$20, and it depends on availability and where I am. Call or text <b>213-421-8619</b> for a quick quote. Under 2 hours, definitely just text.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Deposits hold your slot.</b> Night Out, Half-Day, Full-Day — and any ride quoted over $100 — are confirmed with a 50% deposit (Cash App, Apple Pay, or PayPal). No deposit, no reservation. Cancel 24+ hours out and it comes straight back.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Cancellations.</b> Free up to 24 hours before pickup. Inside 24 hours, the deposit stays with me. No-shows owe the full fare.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law, no exceptions.</p></div>
@@ -598,6 +602,7 @@
   <h2 class="section-title">Book Your Ride</h2>
   <p class="section-sub">Tell me what you need — I'll confirm within the hour during business hours.</p>
   <div class="form-shell">
+    <button type="button" id="rebook" class="book-est" style="display:none;margin:0 0 18px;">🔁 Rebook my usual</button>
     <form id="booking-form" class="form-grid">
       <div class="field full">
         <label for="service">Service</label>
@@ -686,7 +691,8 @@
       <p class="bc-steps">
         <b>1.</b> Tap the button below — your booking email opens pre-filled with your code. Press Send.<br>
         <b>2.</b> Send the payment with code <b id="bc-code2"></b> in the note.<br>
-        <b>3.</b> Reply to your booking email with the payment screenshot. <b>Your slot is held once proof lands</b> — unpaid bookings release after 60 minutes.
+        <b>3.</b> Reply to your booking email with the payment screenshot. <b>Your slot is held once proof lands</b> — unpaid bookings release after 60 minutes.<br>
+        <b>Questions or changes?</b> Call or text <b>213-421-8619</b>.
       </p>
       <button id="bc-send" class="submit" type="button">Open My Booking Email</button>
     </div>
@@ -706,6 +712,7 @@
       </svg>
       <b>LYNX</b>
     </div>
+    <p>Call or text <a href="sms:2134218619" style="color:var(--accent);text-decoration:none;font-weight:700;">213-421-8619</a> · book@lynxdriver.com</p>
     <p>Private rides &amp; personal driver service · © 2026 Lynx Transportation Services</p>
   </div>
 </footer>
@@ -772,20 +779,22 @@
 
   function validateBooking(f) {
     var when = new Date(f.date.value + 'T' + f.time.value);
-    if (when.getTime() - Date.now() < LEAD_HOURS * 3600000)
-      return 'Bookings need at least ' + LEAD_HOURS + ' hours notice — pick a later time.';
+    var lead = when.getTime() - Date.now();
+    if (lead < PRICING.rushMinHours * 3600000)
+      return { error: 'That’s under ' + PRICING.rushMinHours + ' hours away — call or text me at 213-421-8619 for a quick quote. If I can make it happen, I will.', rush: false };
+    var rush = lead < LEAD_HOURS * 3600000;
     var b = BOOKINGS[f.date.value];
-    if (b === 'full') return 'That day is fully booked — pick another from the availability calendar.';
+    if (b === 'full') return { error: 'That day is fully booked — pick another from the availability calendar.', rush: rush };
     if (Array.isArray(b)) {
       var lenHrs = SERVICE_LENGTH_HRS[f.service.value] || 1;
       if (f.service.value.indexOf('Hourly') === 0 && lastQuote && lastQuote.service === f.service.value && lastQuote.hours) lenHrs = lastQuote.hours;
       var s = toMin(f.time.value), e = s + lenHrs * 60;
       for (var i = 0; i < b.length; i++) {
         if (s < toMin(b[i][1]) && toMin(b[i][0]) < e)
-          return 'That time overlaps a booked slot (' + b[i][0] + '–' + b[i][1] + ') — check the availability calendar.';
+          return { error: 'That time overlaps a booked slot (' + b[i][0] + '–' + b[i][1] + ') — check the availability calendar.', rush: rush };
       }
     }
-    return null;
+    return { error: null, rush: rush };
   }
 
   // ---- Fare calculator ----
@@ -806,6 +815,8 @@
     extraRiderFee: 5,
     depositPct: 0.5,         // 50% down locks the slot
     depositThreshold: 100,   // rides under $100 skip the deposit; blocks always take one
+    rushFee: 20,             // bookings inside the 12-hour window
+    rushMinHours: 2,         // under this, no online booking — text me instead
     // Promo codes: add/remove lines here. pct = percent off the whole quote.
     promos: {
       'LYNX10': { pct: 10 }
@@ -896,6 +907,10 @@
       rows.push(['Pre-pickup errand fee (items billed at cost)', money(PRICING.errandFee)]);
       total += PRICING.errandFee;
     }
+    if (document.getElementById('calc-rush').checked) {
+      rows.push(['Rush ride — inside 12 hours', money(PRICING.rushFee)]);
+      total += PRICING.rushFee;
+    }
     var riders = +document.getElementById('calc-riders').value;
     if (riders > PRICING.includedRiders) {
       var extraRiders = riders - PRICING.includedRiders;
@@ -937,7 +952,7 @@
       depEl.style.display = 'none';
     }
     result.style.display = 'block';
-    return { service: service, miles: miles, total: total, promo: appliedPromo, hours: quoteHours };
+    return { service: service, miles: miles, total: total, promo: appliedPromo, hours: quoteHours, rush: document.getElementById('calc-rush').checked };
   }
 
   // ---- Auto-mileage: Photon address autocomplete + OSRM driving distance (free, no keys) ----
@@ -1138,7 +1153,7 @@
     if (formStops.length < 6) addFormStop();
   });
 
-  ['calc-service', 'calc-miles', 'calc-hours', 'calc-wait', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
+  ['calc-service', 'calc-miles', 'calc-hours', 'calc-wait', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-rush', 'calc-promo'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', calcQuote);
     el.addEventListener('change', calcQuote);
@@ -1191,8 +1206,8 @@
     e.preventDefault();
     var f = e.target;
     var errBox = document.getElementById('form-error');
-    var err = validateBooking(f);
-    if (err) { errBox.textContent = err; errBox.style.display = 'block'; return; }
+    var v = validateBooking(f);
+    if (v.error) { errBox.textContent = v.error; errBox.style.display = 'block'; return; }
     errBox.style.display = 'none';
     var code = genCode();
     var quote = (lastQuote && lastQuote.service === f.service.value) ? lastQuote : null;
@@ -1201,6 +1216,9 @@
       'Booking code: ' + code,
       'Service: ' + f.service.value,
       quote ? 'Locked quote: ' + money(quote.total) + ' (~' + quote.miles + ' miles)' + (quote.promo ? ' — promo ' + quote.promo : '') : 'Quote: to be confirmed by reply',
+      v.rush
+        ? 'RUSH RIDE (inside 12 hrs): +$20 ' + ((quote && quote.rush) ? 'included in quote' : 'applies') + ' — subject to availability and driver location; call/text 213-421-8619 for the fastest confirm'
+        : 'Notice: standard (12+ hours ahead)',
       'Date: ' + f.date.value,
       'Pickup time: ' + f.time.value,
       'Pickup location: ' + f.pickup.value,
@@ -1242,14 +1260,56 @@
     if (f.service.value.indexOf('Night') === 0) {
       document.getElementById('bc-amount').textContent += ' · +$100 refundable Night Tab at pickup — covers any night-of extras, remainder returned at drop-off';
     }
+    if (v.rush && !(quote && quote.rush)) {
+      document.getElementById('bc-amount').textContent += ' · +$20 rush fee — subject to availability, call/text 213-421-8619 to confirm fast';
+    }
     var panel = document.getElementById('booking-confirm');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    saveLastBooking(f);
   });
 
   document.getElementById('bc-send').addEventListener('click', function () {
     if (pendingMailto) window.location.href = pendingMailto;
   });
+
+  // ---- Rebook: remember this device's last booking, refill in one tap ----
+  var LAST_KEY = 'lynx-last-booking';
+  function saveLastBooking(f) {
+    try {
+      localStorage.setItem(LAST_KEY, JSON.stringify({
+        service: f.service.value, time: f.time.value,
+        pickup: f.pickup.value, dropoff: f.dropoff.value,
+        stops: formStops.map(function (s) { return s.input.value.trim(); }).filter(Boolean),
+        riders: f.riders.value, name: f.name.value, phone: f.phone.value,
+        email: f.email.value, errand: f.errand.value, playlist: f.playlist.value
+      }));
+    } catch (e) {}
+  }
+  (function initRebook() {
+    var last = null;
+    try { last = JSON.parse(localStorage.getItem(LAST_KEY)); } catch (e) {}
+    if (!last || !last.service) return;
+    var btn = document.getElementById('rebook');
+    btn.textContent = '🔁 Rebook my usual — ' + last.service.split(' (')[0] +
+      (last.pickup ? ' from ' + last.pickup.split(',')[0] : '');
+    btn.style.display = 'block';
+    btn.addEventListener('click', function () {
+      var f = document.getElementById('booking-form');
+      f.service.value = last.service;
+      if (last.time) f.time.value = last.time;
+      f.pickup.value = last.pickup || '';
+      f.dropoff.value = last.dropoff || '';
+      f.riders.value = last.riders || '1';
+      f.name.value = last.name || ''; f.phone.value = last.phone || '';
+      f.email.value = last.email || ''; f.errand.value = last.errand || '';
+      f.playlist.value = last.playlist || '';
+      while (formStops.length) formStops.pop().wrap.remove();
+      (last.stops || []).forEach(addFormStop);
+      f.date.focus();
+      f.date.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  })();
 </script>
 
 </body>
