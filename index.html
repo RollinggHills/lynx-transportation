@@ -396,7 +396,7 @@
       <h3>Night Out</h3>
       <div class="duration">Up to 4 Hours · Evening Standby</div>
       <div class="price">$140</div>
-      <div class="price-note">First 40 miles included · then $1 per mile</div>
+      <div class="price-note">First 40 miles included · then $1 per mile · $100 refundable Night Tab</div>
       <p>Your designated driver for the whole night. I wait outside the venue — one text and the car is out front.</p>
       <ul>
         <li>Driver on standby all night</li>
@@ -585,6 +585,7 @@
     <div class="rule"><span class="star">✦</span><p><b>Cancellations.</b> Free up to 24 hours before pickup. Inside 24 hours, the deposit stays with me. No-shows owe the full fare.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law, no exceptions.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Respect the car.</b> No smoking or vaping. If the car needs professional cleaning after your trip, there's a $150 cleaning fee.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>The Night Tab.</b> Night Outs start with a <b>$100 refundable tab</b>, collected at pickup. Any extras from the night — added stops, extra miles, wait time, a needed cleaning — come out of it at drop-off, and whatever's left goes straight back in your hand. Clean, as-planned night? The whole $100 comes back.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Payment.</b> Cash App <b>$PayRollingHills</b>, Apple Pay, PayPal (<b>@OffEarthLLc</b>), or cash — balance due at pickup. Tolls, parking, and airport fees added at cost. Hourly blocks end at the booked time.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> $10 errand fee. Order ahead in the store's app under your name and I'll grab it — fastest for everyone. If I pay at the counter instead, the item cost is added to your bill, receipt kept. Exact store, address, and order details go in your booking. If I'm placing the order myself, the wait can push your pickup back — ordering ahead keeps us on time.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Plan your stops.</b> Multi-stop night? List every address in the booking form and the whole route is locked before I arrive — no mid-ride guesswork.</p></div>
@@ -930,6 +931,7 @@
     if (total >= PRICING.depositThreshold) {
       var dep = Math.ceil(total * PRICING.depositPct);
       depEl.textContent = 'Lock it in with ' + money(dep) + ' down · ' + money(total - dep) + ' due at pickup';
+      if (service.indexOf('Night') === 0) depEl.textContent += ' · +$100 Night Tab (covers any extras — the rest comes back at drop-off)';
       depEl.style.display = 'block';
     } else {
       depEl.style.display = 'none';
@@ -993,10 +995,9 @@
   function relabelStops() {
     stops.forEach(function (s, i) {
       var isLast = i === stops.length - 1;
-      s.label.textContent = isLast
-        ? (stops.length === 1 ? 'Destination' : 'Final destination')
-        : 'Stop ' + (i + 1);
+      s.label.textContent = isLast ? 'Final destination' : 'Stop ' + (i + 1);
       s.sameBtn.style.display = isLast ? 'inline-block' : 'none';
+      s.hint.style.display = isLast ? 'block' : 'none';
     });
   }
 
@@ -1014,9 +1015,12 @@
     sameBtn.type = 'button';
     sameBtn.className = 'same-btn';
     sameBtn.textContent = '↩ Same as pickup';
-    wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list); wrap.appendChild(sameBtn);
+    var hint = document.createElement('p');
+    hint.className = 'field-hint';
+    hint.textContent = 'This locks your route — destinations added after this one mid-ride bill at standard rates (extra miles + wait time).';
+    wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list); wrap.appendChild(sameBtn); wrap.appendChild(hint);
     document.getElementById('calc-stops').appendChild(wrap);
-    var entry = { input: input, label: label, sameBtn: sameBtn, geo: null };
+    var entry = { input: input, label: label, sameBtn: sameBtn, hint: hint, geo: null };
     stops.push(entry);
     attachAC(input, list, function (g) { entry.geo = g; });
     sameBtn.addEventListener('click', function () {
@@ -1192,7 +1196,10 @@
             return sp && sp.type === 'block' && sp.base >= PRICING.depositThreshold
               ? money(Math.ceil(sp.base * PRICING.depositPct)) + ' (50% of base — mileage extras settle at pickup)'
               : 'Only if the quoted fare tops $100 — confirmed with your quote';
-          })()),
+          })())
+        + (f.service.value.indexOf('Night') === 0
+            ? '\nNight Tab: $100 collected at pickup, refundable — night-of extras deduct from it, the rest is returned at drop-off'
+            : ''),
       '',
       'Notes: ' + (f.notes.value || 'None')
     ].join('\n');
@@ -1205,6 +1212,9 @@
           ? 'Due now to lock: ' + money(quote.deposit) + ' · ' + money(quote.total - quote.deposit) + ' at pickup (total ' + money(quote.total) + ')'
           : 'Total ' + money(quote.total) + ' — due at pickup, no deposit needed')
       : 'Exact total confirmed by reply — use the fare calculator to lock it instantly next time.';
+    if (f.service.value.indexOf('Night') === 0) {
+      document.getElementById('bc-amount').textContent += ' · +$100 refundable Night Tab at pickup — covers any night-of extras, remainder returned at drop-off';
+    }
     var panel = document.getElementById('booking-confirm');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'center' });

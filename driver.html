@@ -62,6 +62,13 @@
     background: var(--accent); color: #14100a; border: none; border-radius: 100px;
     padding: 14px; font-weight: 700; font-size: 1rem; font-family: inherit; cursor: pointer;
   }
+  .su-rows { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 8px; }
+  .su-row { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.92rem; padding: 3px 0; }
+  .su-row.total { color: var(--text); font-weight: 700; font-size: 1.15rem; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; }
+  .su-row.total span:last-child { color: var(--accent); }
+  .check-row { display: flex; align-items: center; gap: 10px; }
+  .check-row input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .check-row label { color: var(--text); font-size: 0.9rem; }
   .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
   .foot button { background: none; border: none; color: var(--muted); font-size: 0.8rem; cursor: pointer; font-family: inherit; text-decoration: underline; }
   .hint { color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
@@ -93,6 +100,46 @@
       <p class="hint">First line = pickup. Navigation starts from wherever you are.</p>
     </div>
     <button class="add" type="submit">Add to Today</button>
+  </form>
+
+  <h2>Settle Up — End-of-Ride Bill</h2>
+  <form id="settle-form">
+    <div class="row2">
+      <div><label for="su-service">Service</label>
+        <select id="su-service">
+          <option>Personal Ride</option>
+          <option>Quick Trip (Commuter)</option>
+          <option>Night Out (Up to 4 Hours)</option>
+          <option>Half-Day Driver (6 Hours)</option>
+          <option>Full-Day Driver (12 Hours)</option>
+          <option>Hourly Driver (Custom Hours)</option>
+        </select></div>
+      <div id="su-hours-wrap" style="display:none;"><label for="su-hours">Hours</label>
+        <select id="su-hours">
+          <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+        </select></div>
+    </div>
+    <div class="row2">
+      <div><label for="su-miles">Total miles driven</label><input type="number" id="su-miles" min="0" placeholder="Odometer / Maps"></div>
+      <div><label for="su-riders">Riders</label><select id="su-riders"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label for="su-wait">Billable wait (min)</label><input type="number" id="su-wait" min="0" placeholder="After free time"></div>
+      <div><label for="su-tolls">Tolls / parking $</label><input type="number" id="su-tolls" min="0" step="0.01" placeholder="At cost"></div>
+    </div>
+    <div class="row2">
+      <div><label for="su-items">Items fronted $</label><input type="number" id="su-items" min="0" step="0.01" placeholder="Coffee, food…"></div>
+      <div><label for="su-promo">Promo code used</label><input type="text" id="su-promo" placeholder="If any" style="text-transform:uppercase"></div>
+    </div>
+    <div class="row2">
+      <div class="check-row"><input type="checkbox" id="su-clean"><label for="su-clean">$150 cleaning fee</label></div>
+      <div><label for="su-paid">Already paid $</label><input type="number" id="su-paid" min="0" step="0.01" placeholder="Deposit + credits"></div>
+    </div>
+    <div><label for="su-tab">Night Tab held $ (Night Outs)</label><input type="number" id="su-tab" min="0" step="1" placeholder="Usually 100"></div>
+    <div class="su-rows" id="su-rows"></div>
+    <div class="su-row total"><span id="su-total-label">Balance due</span><span id="su-total">$0</span></div>
+    <p class="hint" style="text-align:center;margin-top:4px;">Tab math: extras come out of the tab, the rest goes back — e.g. $100 tab − $27 extras = hand back $73 at drop-off.</p>
   </form>
 
   <div class="foot">
@@ -169,6 +216,74 @@
   });
 
   render();
+
+  // ---- Settle Up: mirror of the site's pricing. If prices change on index.html,
+  // this table must change too (tell Claude "sync the Day Runner prices").
+  var P = {
+    'Personal Ride':               { type: 'ride',  minFare: 30, perMile: 2 },
+    'Quick Trip (Commuter)':       { type: 'block', base: 25,  includedMiles: 12,  extraPerMile: 2 },
+    'Night Out (Up to 4 Hours)':   { type: 'block', base: 140, includedMiles: 40,  extraPerMile: 1 },
+    'Half-Day Driver (6 Hours)':   { type: 'block', base: 150, includedMiles: 60,  extraPerMile: 1 },
+    'Full-Day Driver (12 Hours)':  { type: 'block', base: 280, includedMiles: 120, extraPerMile: 1 },
+    'Hourly Driver (Custom Hours)': { type: 'hourly', includedPerHour: 10, extraPerMile: 1 },
+    includedRiders: 2, extraRiderFee: 5, waitPerMin: 0.5, cleanFee: 150,
+    promos: { 'LYNX10': { pct: 10 } }
+  };
+  function m(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
+  function hb(h) { return h <= 5 ? 30 * h : (h < 12 ? 150 + (h - 6) * 25 : 280); }
+
+  function settle() {
+    var sv = document.getElementById('su-service').value, p = P[sv];
+    document.getElementById('su-hours-wrap').style.display = p.type === 'hourly' ? 'block' : 'none';
+    var mi = parseFloat(document.getElementById('su-miles').value) || 0;
+    var rows = [], tot = 0;
+    if (p.type === 'ride') {
+      var fare = Math.max(p.minFare, mi * p.perMile);
+      rows.push(['Ride — ' + mi + ' mi', m(fare)]); tot += fare;
+    } else if (p.type === 'hourly') {
+      var h = +document.getElementById('su-hours').value;
+      rows.push([h + ' hrs base', m(hb(h))]); tot += hb(h);
+      var ex = Math.max(0, mi - 10 * h);
+      if (ex > 0) { rows.push([ex + ' extra mi', m(ex * p.extraPerMile)]); tot += ex * p.extraPerMile; }
+    } else {
+      rows.push([sv.split(' (')[0] + ' base', m(p.base)]); tot += p.base;
+      var ex2 = Math.max(0, mi - p.includedMiles);
+      if (ex2 > 0) { rows.push([ex2 + ' extra mi', m(ex2 * p.extraPerMile)]); tot += ex2 * p.extraPerMile; }
+    }
+    var r = +document.getElementById('su-riders').value;
+    if (r > P.includedRiders) {
+      var cf = (r - P.includedRiders) * P.extraRiderFee;
+      rows.push([(r - P.includedRiders) + ' extra rider(s)', m(cf)]); tot += cf;
+    }
+    var w = parseFloat(document.getElementById('su-wait').value) || 0;
+    if (w > 0) { rows.push([w + ' min wait × 50¢', m(w * P.waitPerMin)]); tot += w * P.waitPerMin; }
+    var pc = document.getElementById('su-promo').value.trim().toUpperCase();
+    if (pc && P.promos[pc]) {
+      var d = Math.round(tot * P.promos[pc].pct) / 100;
+      rows.push(['Promo ' + pc + ' — ' + P.promos[pc].pct + '% off', '−' + m(d)]); tot -= d;
+    }
+    var tl = parseFloat(document.getElementById('su-tolls').value) || 0;
+    if (tl > 0) { rows.push(['Tolls / parking at cost', m(tl)]); tot += tl; }
+    var itc = parseFloat(document.getElementById('su-items').value) || 0;
+    if (itc > 0) { rows.push(['Items fronted at cost', m(itc)]); tot += itc; }
+    if (document.getElementById('su-clean').checked) { rows.push(['Cleaning fee', m(P.cleanFee)]); tot += P.cleanFee; }
+    var pd = parseFloat(document.getElementById('su-paid').value) || 0;
+    if (pd > 0) { rows.push(['Already paid', '−' + m(pd)]); tot -= pd; }
+    var tb = parseFloat(document.getElementById('su-tab').value) || 0;
+    if (tb > 0) { rows.push(['Night Tab held', '−' + m(tb)]); tot -= tb; }
+    document.getElementById('su-rows').innerHTML = rows.map(function (x) {
+      return '<div class="su-row"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>';
+    }).join('');
+    document.getElementById('su-total-label').textContent = tot >= 0 ? 'Balance due' : 'Refund to rider';
+    document.getElementById('su-total').textContent = m(Math.abs(tot));
+  }
+  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-clean', 'su-paid', 'su-tab'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', settle);
+    el.addEventListener('change', settle);
+  });
+  document.getElementById('settle-form').addEventListener('submit', function (e) { e.preventDefault(); });
+  settle();
 </script>
 
 </body>
