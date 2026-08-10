@@ -612,17 +612,19 @@
         <label for="time">Pickup Time</label>
         <input type="time" id="time" name="time" required>
       </div>
-      <div class="field full">
+      <div class="field full suggest">
         <label for="pickup">Pickup Location</label>
-        <input type="text" id="pickup" name="pickup" placeholder="Address or landmark" required>
+        <input type="text" id="pickup" name="pickup" placeholder="Start typing — pick from the suggestions" required autocomplete="off">
+        <div class="suggest-list" id="sug-pickup"></div>
       </div>
-      <div class="field full">
+      <div class="field full suggest">
         <label for="dropoff">Destination (optional for hourly bookings)</label>
-        <input type="text" id="dropoff" name="dropoff" placeholder="Where are we headed?">
+        <input type="text" id="dropoff" name="dropoff" placeholder="Where are we headed?" autocomplete="off">
+        <div class="suggest-list" id="sug-dropoff"></div>
       </div>
+      <div id="form-stops"></div>
       <div class="field full">
-        <label for="stops">Planned stops (optional)</label>
-        <textarea id="stops" name="stops" placeholder="Have the night mapped out? One stop per line — address + rough time if it matters."></textarea>
+        <button type="button" class="add-stop" id="form-add-stop">＋ Add stops along the way (optional)</button>
       </div>
       <div class="field full">
         <label for="errand">Pre-pickup errand (optional · +$10)</label>
@@ -1055,6 +1057,33 @@
 
   document.getElementById('calc-service').addEventListener('change', applyRouteMiles);
 
+  // Booking form gets the same autocomplete — no blind typing anywhere
+  attachAC(document.getElementById('pickup'), document.getElementById('sug-pickup'), function () {});
+  attachAC(document.getElementById('dropoff'), document.getElementById('sug-dropoff'), function () {});
+
+  var formStops = [];
+  function relabelFormStops() {
+    formStops.forEach(function (s, i) { s.label.textContent = 'Stop ' + (i + 1) + ' (optional)'; });
+  }
+  function addFormStop(val) {
+    var wrap = document.createElement('div');
+    wrap.className = 'field full suggest';
+    var label = document.createElement('label');
+    var input = document.createElement('input');
+    input.type = 'text'; input.placeholder = 'Address or place — pick from suggestions'; input.autocomplete = 'off';
+    if (typeof val === 'string') input.value = val;
+    var list = document.createElement('div');
+    list.className = 'suggest-list';
+    wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list);
+    document.getElementById('form-stops').appendChild(wrap);
+    formStops.push({ input: input, label: label, wrap: wrap });
+    attachAC(input, list, function () {});
+    relabelFormStops();
+  }
+  document.getElementById('form-add-stop').addEventListener('click', function () {
+    if (formStops.length < 6) addFormStop();
+  });
+
   ['calc-service', 'calc-miles', 'calc-hours', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', calcQuote);
@@ -1079,10 +1108,8 @@
       var lastVal = stops[stops.length - 1].input.value.trim();
       if (lastVal) document.getElementById('dropoff').value = lastVal;
       var mids = stops.slice(0, -1).map(function (s) { return s.input.value.trim(); }).filter(Boolean);
-      if (mids.length) {
-        var st = document.getElementById('stops');
-        st.value = st.value ? st.value + '\n' + mids.join('\n') : mids.join('\n');
-      }
+      while (formStops.length) formStops.pop().wrap.remove();
+      mids.forEach(addFormStop);
     }
     var notes = document.getElementById('notes');
     var line = 'Locked quote: ' + q.service + (q.hours ? ' — ' + q.hours + ' hours' : '') + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
@@ -1124,7 +1151,10 @@
       'Pickup time: ' + f.time.value,
       'Pickup location: ' + f.pickup.value,
       'Destination: ' + (f.dropoff.value || 'N/A'),
-      'Planned stops: ' + (f.stops.value ? '\n  ' + f.stops.value.split('\n').join('\n  ') : 'None'),
+      (function () {
+        var vals = formStops.map(function (s) { return s.input.value.trim(); }).filter(Boolean);
+        return 'Planned stops: ' + (vals.length ? '\n  ' + vals.join('\n  ') : 'None');
+      })(),
       'Pre-pickup errand: ' + (f.errand.value || 'None'),
       'Playlist: ' + (f.playlist.value || 'None'),
       '',
