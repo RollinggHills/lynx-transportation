@@ -162,6 +162,8 @@
   .field input::placeholder, .field textarea::placeholder { color: #556; }
   .field select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2397a0b8' stroke-width='2' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
   .field textarea { resize: vertical; min-height: 90px; }
+  .field-hint { color: var(--muted); font-size: 0.74rem; line-height: 1.55; margin-top: 2px; }
+  .field-hint b { color: var(--text); }
   button.submit {
     grid-column: 1 / -1; background: var(--accent); color: #14100a; border: none; cursor: pointer;
     padding: 15px; border-radius: 100px; font-size: 1rem; font-weight: 700; font-family: inherit;
@@ -243,6 +245,24 @@
   .calc-row.total { color: var(--text); font-weight: 700; font-size: 1.2rem; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; }
   .calc-row.total span:last-child { color: var(--accent); }
   .calc-note { color: var(--muted); font-size: 0.78rem; margin-top: 12px; text-align: center; }
+  .suggest { position: relative; }
+  .suggest-list {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 20; display: none;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    margin-top: 4px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  }
+  .suggest-list div { padding: 11px 14px; font-size: 0.88rem; color: var(--muted); cursor: pointer; }
+  .suggest-list div:hover { background: var(--accent-soft); color: var(--text); }
+  .dist-line { color: var(--accent); font-size: 0.85rem; font-weight: 600; }
+  .add-stop {
+    width: 100%; background: transparent; border: 1px dashed var(--line); color: var(--muted);
+    border-radius: 10px; padding: 10px; cursor: pointer; font-family: inherit; font-size: 0.88rem;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .add-stop:hover { border-color: var(--accent); color: var(--accent); }
+  #promo-msg { font-size: 0.8rem; margin-top: 2px; }
+  #promo-msg.promo-ok { color: #7ec97e; }
+  #promo-msg.promo-bad { color: #ff6b6b; }
   #calc-deposit { display: none; text-align: center; color: var(--accent); font-size: 0.88rem; font-weight: 600; margin-top: 10px; }
   button.book-est {
     display: block; width: 100%; margin-top: 14px; background: transparent; cursor: pointer;
@@ -377,6 +397,7 @@
       <ul>
         <li>Driver on standby all night</li>
         <li>Hop venues without a new ride each time</li>
+        <li>Your playlist on the speakers</li>
         <li>Everyone gets home safe</li>
       </ul>
       <a class="select" href="#book" data-service="Night Out (Up to 4 Hours)">Book This</a>
@@ -412,9 +433,21 @@
           <option>Full-Day Driver (12 Hours)</option>
         </select>
       </div>
+      <div class="field full suggest">
+        <label for="calc-from">Pickup address</label>
+        <input type="text" id="calc-from" placeholder="Start typing an address…" autocomplete="off">
+        <div class="suggest-list" id="sug-from"></div>
+      </div>
+      <div id="calc-stops"></div>
       <div class="field full">
-        <label for="calc-miles" id="calc-miles-label">Estimated miles (one-way)</label>
-        <input type="number" id="calc-miles" min="0" step="1" placeholder="Check your maps app — e.g. 12">
+        <button type="button" class="add-stop" id="add-stop">＋ Add another stop</button>
+      </div>
+      <div class="field full" id="dist-row" style="display:none;">
+        <p class="dist-line" id="dist-line"></p>
+      </div>
+      <div class="field full">
+        <label for="calc-miles" id="calc-miles-label">Miles — auto-fills from the addresses above (edit anytime)</label>
+        <input type="number" id="calc-miles" min="0" step="1" placeholder="Or type miles yourself">
       </div>
       <div class="field full">
         <label for="calc-riders">Riders (first two included, +$5 each after)</label>
@@ -422,13 +455,18 @@
           <option>1</option><option>2</option><option>3</option><option>4</option>
         </select>
       </div>
+      <div class="field full">
+        <label for="calc-promo">Promo code (optional)</label>
+        <input type="text" id="calc-promo" placeholder="Have a code?" autocomplete="off" style="text-transform:uppercase">
+        <p id="promo-msg"></p>
+      </div>
       <div class="field full calc-check">
         <input type="checkbox" id="calc-oneway">
         <label for="calc-oneway">One-way drop-off 50+ miles away (adds return-trip travel)</label>
       </div>
       <div class="field full calc-check">
         <input type="checkbox" id="calc-errand">
-        <label for="calc-errand">Pre-pickup errand — coffee run, store stop (+$10, items billed at cost)</label>
+        <label for="calc-errand">Pre-pickup errand (+$10 — order ahead in the store's app; anything I pay for is added to your bill)</label>
       </div>
     </div>
     <div id="calc-result">
@@ -529,7 +567,7 @@
     <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law, no exceptions.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Respect the car.</b> No smoking or vaping. If the car needs professional cleaning after your trip, there's a $150 cleaning fee.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Payment.</b> Cash App <b>$PayRollingHills</b>, Apple Pay, PayPal (<b>@OffEarthLLc</b>), or cash — balance due at pickup. Tolls, parking, and airport fees added at cost. Hourly blocks end at the booked time.</p></div>
-    <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> Need something grabbed before pickup? $10 errand fee plus the item cost, settled with your balance. Put the order in your booking.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> $10 errand fee. Order ahead in the store's app under your name and I'll grab it — fastest for everyone. If I pay at the counter instead, the item cost is added to your bill, receipt kept. Exact store, address, and order details go in your booking.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Plan your stops.</b> Multi-stop night? List every address in the booking form and the whole route is locked before I arrive — no mid-ride guesswork.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Driver's discretion.</b> I can decline any ride where safety or respect is in question. Credits are prepayment, not priority — every booking still follows the notice rules and the calendar. If I ever end a booking relationship, your unused balance comes back to you in full.</p></div>
   </div>
@@ -572,8 +610,14 @@
         <textarea id="stops" name="stops" placeholder="Have the night mapped out? One stop per line — address + rough time if it matters."></textarea>
       </div>
       <div class="field full">
-        <label for="errand">Pre-pickup errand (optional · +$10 + item cost)</label>
-        <input type="text" id="errand" name="errand" placeholder="Starbucks order, pharmacy grab — tell me what and where">
+        <label for="errand">Pre-pickup errand (optional · +$10)</label>
+        <input type="text" id="errand" name="errand" placeholder="Store name + address + order name on the pickup">
+        <p class="field-hint">Best way: order ahead in the store's app under <b>your name</b> and I'll grab it — no markup, no waiting. If I have to pay at the counter, the item cost is added to your bill (receipt kept). Be exact: store, address, and what I'm picking up.</p>
+      </div>
+      <div class="field full">
+        <label for="playlist">Your soundtrack (optional)</label>
+        <input type="text" id="playlist" name="playlist" placeholder="Paste a Spotify or Apple Music playlist link — or list a few songs">
+        <p class="field-hint">Your ride, your music — queued up before I pull up. Great for Night Outs.</p>
       </div>
       <div class="field">
         <label for="name">Your Name</label>
@@ -731,7 +775,11 @@
     includedRiders: 2,       // riders 3 and 4 add a small crew fee
     extraRiderFee: 5,
     depositPct: 0.5,         // 50% down locks the slot
-    depositThreshold: 100    // rides under $100 skip the deposit; blocks always take one
+    depositThreshold: 100,   // rides under $100 skip the deposit; blocks always take one
+    // Promo codes: add/remove lines here. pct = percent off the whole quote.
+    promos: {
+      'LYNX10': { pct: 10 }
+    }
   };
 
   function money(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
@@ -745,9 +793,9 @@
 
     // Day bookings usually loop back home, so miles = total for the day
     document.getElementById('calc-miles-label').textContent =
-      p.type === 'ride' || service.indexOf('Quick') === 0 ? 'Estimated miles (one-way)' :
-      service.indexOf('Night') === 0 ? 'Estimated total miles for the night' :
-      'Estimated total miles for the day';
+      p.type === 'ride' || service.indexOf('Quick') === 0 ? 'Miles (one-way) — auto-fills from addresses, edit anytime' :
+      service.indexOf('Night') === 0 ? 'Total miles for the night — round trip auto-fills, edit anytime' :
+      'Total miles for the day — round trip auto-fills, edit anytime';
 
     if (isNaN(miles) || miles <= 0) { result.style.display = 'none'; return null; }
 
@@ -782,6 +830,25 @@
       rows.push([extraRiders + ' extra rider' + (extraRiders > 1 ? 's' : '') + ' × ' + money(PRICING.extraRiderFee), money(crewFee)]);
       total += crewFee;
     }
+    var appliedPromo = null;
+    var codeStr = document.getElementById('calc-promo').value.trim().toUpperCase();
+    var promoMsg = document.getElementById('promo-msg');
+    if (codeStr) {
+      var pr = PRICING.promos[codeStr];
+      if (pr) {
+        var disc = Math.round(total * pr.pct) / 100;
+        rows.push(['Promo ' + codeStr + ' — ' + pr.pct + '% off', '−' + money(disc)]);
+        total -= disc;
+        appliedPromo = codeStr + ' (' + pr.pct + '% off)';
+        promoMsg.textContent = '✓ ' + codeStr + ' applied — ' + pr.pct + '% off';
+        promoMsg.className = 'promo-ok';
+      } else {
+        promoMsg.textContent = 'Code not recognized';
+        promoMsg.className = 'promo-bad';
+      }
+    } else {
+      promoMsg.textContent = '';
+    }
 
     document.getElementById('calc-rows').innerHTML = rows.map(function (r) {
       return '<div class="calc-row"><span>' + r[0] + '</span><span>' + r[1] + '</span></div>';
@@ -796,10 +863,140 @@
       depEl.style.display = 'none';
     }
     result.style.display = 'block';
-    return { service: service, miles: miles, total: total };
+    return { service: service, miles: miles, total: total, promo: appliedPromo };
   }
 
-  ['calc-service', 'calc-miles', 'calc-riders', 'calc-oneway', 'calc-errand'].forEach(function (id) {
+  // ---- Auto-mileage: Photon address autocomplete + OSRM driving distance (free, no keys) ----
+  var geo = { from: null, to: null, oneWayMiles: null, biasLat: null, biasLon: null };
+
+  // Bias suggestions toward the customer's area (asked once, on first address focus)
+  document.getElementById('calc-from').addEventListener('focus', function () {
+    try {
+      navigator.geolocation && navigator.geolocation.getCurrentPosition(function (p) {
+        geo.biasLat = p.coords.latitude; geo.biasLon = p.coords.longitude;
+      }, function () {}, { maximumAge: 600000, timeout: 5000 });
+    } catch (err) {}
+  }, { once: true });
+
+  function debounce(fn, ms) {
+    var t; return function () { var a = arguments; clearTimeout(t); t = setTimeout(function () { fn.apply(null, a); }, ms); };
+  }
+
+  var stops = [];  // dynamic stop fields: [{ input, label, geo }]
+
+  function attachAC(input, list, setGeo) {
+    var search = debounce(function () {
+      var q = input.value.trim();
+      setGeo(null);
+      updateDistance();
+      if (q.length < 3) { list.style.display = 'none'; return; }
+      var url = 'https://photon.komoot.io/api/?limit=4&q=' + encodeURIComponent(q);
+      if (geo.biasLat !== null) url += '&lat=' + geo.biasLat + '&lon=' + geo.biasLon;
+      fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+        var feats = (d.features || []).slice(0, 4);
+        if (!feats.length) { list.style.display = 'none'; return; }
+        list.innerHTML = '';
+        feats.forEach(function (ft) {
+          var p = ft.properties;
+          var label = [p.name, p.street && p.housenumber ? p.housenumber + ' ' + p.street : p.street, p.city || p.county, p.state]
+            .filter(Boolean).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ');
+          var el = document.createElement('div');
+          el.textContent = label;
+          el.addEventListener('mousedown', function (ev) {
+            ev.preventDefault();
+            input.value = label;
+            setGeo({ lon: ft.geometry.coordinates[0], lat: ft.geometry.coordinates[1] });
+            list.style.display = 'none';
+            updateDistance();
+          });
+          list.appendChild(el);
+        });
+        list.style.display = 'block';
+      }).catch(function () { list.style.display = 'none'; });
+    }, 300);
+    input.addEventListener('input', search);
+    input.addEventListener('blur', function () { setTimeout(function () { list.style.display = 'none'; }, 200); });
+  }
+
+  function relabelStops() {
+    stops.forEach(function (s, i) {
+      s.label.textContent = i === stops.length - 1
+        ? (stops.length === 1 ? 'Destination' : 'Final destination')
+        : 'Stop ' + (i + 1);
+    });
+  }
+
+  function addStopField() {
+    var wrap = document.createElement('div');
+    wrap.className = 'field full suggest';
+    var label = document.createElement('label');
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = stops.length === 0 ? 'Where to?' : 'Next address…';
+    input.autocomplete = 'off';
+    var list = document.createElement('div');
+    list.className = 'suggest-list';
+    wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list);
+    document.getElementById('calc-stops').appendChild(wrap);
+    var entry = { input: input, label: label, geo: null };
+    stops.push(entry);
+    attachAC(input, list, function (g) { entry.geo = g; });
+    relabelStops();
+  }
+  addStopField();
+  document.getElementById('add-stop').addEventListener('click', function () {
+    if (stops.length < 6) addStopField();
+  });
+  attachAC(document.getElementById('calc-from'), document.getElementById('sug-from'), function (g) { geo.from = g; });
+
+  function isRoundTripService() {
+    var s = document.getElementById('calc-service').value;
+    return !(s === 'Personal Ride' || s.indexOf('Quick') === 0);
+  }
+
+  function applyRouteMiles() {
+    if (geo.oneWayMiles === null) return;
+    var roundTrip = isRoundTripService();
+    var miles = Math.ceil(roundTrip ? geo.loopMiles : geo.oneWayMiles);
+    var mi = document.getElementById('calc-miles');
+    mi.value = miles;
+    var through = stops.length > 1 ? ' through ' + stops.length + ' stops' : '';
+    document.getElementById('dist-line').textContent = roundTrip
+      ? '📍 ' + miles + ' driving miles round trip' + through + ' — back to your pickup at the end'
+      : '📍 ' + geo.oneWayMiles.toFixed(1) + ' driving miles' + (through || ' one-way');
+    document.getElementById('dist-row').style.display = 'block';
+    mi.dispatchEvent(new Event('input'));
+  }
+
+  function updateDistance() {
+    var pts = [geo.from].concat(stops.map(function (s) { return s.geo; }));
+    if (pts.some(function (p) { return !p; })) {
+      geo.oneWayMiles = null; geo.loopMiles = null;
+      document.getElementById('dist-row').style.display = 'none';
+      return;
+    }
+    // One request covers both cases: route through every stop then back to start.
+    // Sum of all legs = round trip; minus the last leg = one-way through the stops.
+    var coordStr = pts.concat([geo.from]).map(function (p) { return p.lon + ',' + p.lat; }).join(';');
+    fetch('https://router.project-osrm.org/route/v1/driving/' + coordStr + '?overview=false')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.routes || !d.routes[0]) throw new Error('no route');
+        var legs = d.routes[0].legs;
+        var totalM = legs.reduce(function (a, l) { return a + l.distance; }, 0);
+        geo.loopMiles = totalM / 1609.344;
+        geo.oneWayMiles = (totalM - legs[legs.length - 1].distance) / 1609.344;
+        applyRouteMiles();
+      })
+      .catch(function () {
+        document.getElementById('dist-line').textContent = 'Couldn’t auto-calculate — type the miles below (your maps app knows).';
+        document.getElementById('dist-row').style.display = 'block';
+      });
+  }
+
+  document.getElementById('calc-service').addEventListener('change', applyRouteMiles);
+
+  ['calc-service', 'calc-miles', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', calcQuote);
     el.addEventListener('change', calcQuote);
@@ -814,9 +1011,20 @@
     var calcRiders = document.getElementById('calc-riders').value;
     document.getElementById('riders').value = calcRiders;
     lastQuote = {
-      service: q.service, miles: q.miles, total: q.total,
+      service: q.service, miles: q.miles, total: q.total, promo: q.promo,
       deposit: q.total >= PRICING.depositThreshold ? Math.ceil(q.total * PRICING.depositPct) : 0
     };
+    var fromAddr = document.getElementById('calc-from').value.trim();
+    if (fromAddr) document.getElementById('pickup').value = fromAddr;
+    if (stops.length) {
+      var lastVal = stops[stops.length - 1].input.value.trim();
+      if (lastVal) document.getElementById('dropoff').value = lastVal;
+      var mids = stops.slice(0, -1).map(function (s) { return s.input.value.trim(); }).filter(Boolean);
+      if (mids.length) {
+        var st = document.getElementById('stops');
+        st.value = st.value ? st.value + '\n' + mids.join('\n') : mids.join('\n');
+      }
+    }
     var notes = document.getElementById('notes');
     var line = 'Locked quote: ' + q.service + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
     notes.value = notes.value ? notes.value + '\n' + line : line;
@@ -852,13 +1060,14 @@
     var body = [
       'Booking code: ' + code,
       'Service: ' + f.service.value,
-      quote ? 'Locked quote: ' + money(quote.total) + ' (~' + quote.miles + ' miles)' : 'Quote: to be confirmed by reply',
+      quote ? 'Locked quote: ' + money(quote.total) + ' (~' + quote.miles + ' miles)' + (quote.promo ? ' — promo ' + quote.promo : '') : 'Quote: to be confirmed by reply',
       'Date: ' + f.date.value,
       'Pickup time: ' + f.time.value,
       'Pickup location: ' + f.pickup.value,
       'Destination: ' + (f.dropoff.value || 'N/A'),
       'Planned stops: ' + (f.stops.value ? '\n  ' + f.stops.value.split('\n').join('\n  ') : 'None'),
       'Pre-pickup errand: ' + (f.errand.value || 'None'),
+      'Playlist: ' + (f.playlist.value || 'None'),
       '',
       'Name: ' + f.name.value,
       'Phone: ' + f.phone.value,
