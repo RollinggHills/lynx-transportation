@@ -958,7 +958,17 @@
 
   var stops = [];  // dynamic stop fields: [{ input, label, geo }]
 
-  function attachAC(input, list, setGeo) {
+  // Fallback geocoder: resolves typed-but-not-clicked addresses on blur
+  function geocodeText(q, cb) {
+    var url = 'https://photon.komoot.io/api/?limit=1&q=' + encodeURIComponent(q);
+    if (geo.biasLat !== null) url += '&lat=' + geo.biasLat + '&lon=' + geo.biasLon;
+    fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+      var ft = d.features && d.features[0];
+      if (ft) cb({ lon: ft.geometry.coordinates[0], lat: ft.geometry.coordinates[1] });
+    }).catch(function () {});
+  }
+
+  function attachAC(input, list, setGeo, getGeo) {
     var search = debounce(function () {
       var q = input.value.trim();
       setGeo(null);
@@ -989,7 +999,15 @@
       }).catch(function () { list.style.display = 'none'; });
     }, 300);
     input.addEventListener('input', search);
-    input.addEventListener('blur', function () { setTimeout(function () { list.style.display = 'none'; }, 200); });
+    input.addEventListener('blur', function () {
+      setTimeout(function () {
+        list.style.display = 'none';
+        var q = input.value.trim();
+        if (q.length >= 3 && !getGeo()) {
+          geocodeText(q, function (g) { setGeo(g); updateDistance(); });
+        }
+      }, 200);
+    });
   }
 
   function relabelStops() {
@@ -1022,11 +1040,20 @@
     document.getElementById('calc-stops').appendChild(wrap);
     var entry = { input: input, label: label, sameBtn: sameBtn, hint: hint, geo: null };
     stops.push(entry);
-    attachAC(input, list, function (g) { entry.geo = g; });
+    attachAC(input, list, function (g) { entry.geo = g; }, function () { return entry.geo; });
     sameBtn.addEventListener('click', function () {
-      entry.input.value = document.getElementById('calc-from').value;
-      entry.geo = geo.from ? { lon: geo.from.lon, lat: geo.from.lat } : null;
-      updateDistance();
+      var fromInput = document.getElementById('calc-from');
+      entry.input.value = fromInput.value;
+      if (geo.from) {
+        entry.geo = { lon: geo.from.lon, lat: geo.from.lat };
+        updateDistance();
+      } else if (fromInput.value.trim().length >= 3) {
+        geocodeText(fromInput.value.trim(), function (g) {
+          geo.from = g;
+          entry.geo = { lon: g.lon, lat: g.lat };
+          updateDistance();
+        });
+      }
     });
     relabelStops();
   }
@@ -1035,7 +1062,7 @@
     if (stops.length < 6) addStopField();
     calcQuote();
   });
-  attachAC(document.getElementById('calc-from'), document.getElementById('sug-from'), function (g) { geo.from = g; });
+  attachAC(document.getElementById('calc-from'), document.getElementById('sug-from'), function (g) { geo.from = g; }, function () { return geo.from; });
 
   function isRoundTripService() {
     var s = document.getElementById('calc-service').value;
@@ -1085,8 +1112,8 @@
   document.getElementById('calc-service').addEventListener('change', applyRouteMiles);
 
   // Booking form gets the same autocomplete — no blind typing anywhere
-  attachAC(document.getElementById('pickup'), document.getElementById('sug-pickup'), function () {});
-  attachAC(document.getElementById('dropoff'), document.getElementById('sug-dropoff'), function () {});
+  attachAC(document.getElementById('pickup'), document.getElementById('sug-pickup'), function () {}, function () { return true; });
+  attachAC(document.getElementById('dropoff'), document.getElementById('sug-dropoff'), function () {}, function () { return true; });
 
   var formStops = [];
   function relabelFormStops() {
@@ -1104,7 +1131,7 @@
     wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list);
     document.getElementById('form-stops').appendChild(wrap);
     formStops.push({ input: input, label: label, wrap: wrap });
-    attachAC(input, list, function () {});
+    attachAC(input, list, function () {}, function () { return true; });
     relabelFormStops();
   }
   document.getElementById('form-add-stop').addEventListener('click', function () {
