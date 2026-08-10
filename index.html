@@ -416,6 +416,7 @@
       <a class="select" href="#book" data-service="Quick Trip (Commuter)">Book This</a>
     </div>
   </div>
+  <p class="section-sub" style="margin-top:20px;margin-bottom:0;">Need different hours? The fare calculator prices any length from 2 to 12 — package rates apply automatically.</p>
 </section>
 
 <section id="quote" class="wrap">
@@ -431,7 +432,16 @@
           <option>Night Out (Up to 4 Hours)</option>
           <option>Half-Day Driver (6 Hours)</option>
           <option>Full-Day Driver (12 Hours)</option>
+          <option>Hourly Driver (Custom Hours)</option>
         </select>
+      </div>
+      <div class="field full" id="hours-row" style="display:none;">
+        <label for="calc-hours">How many hours?</label>
+        <select id="calc-hours">
+          <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+        <p class="field-hint" id="hours-hint"></p>
       </div>
       <div class="field full suggest">
         <label for="calc-from">Pickup address</label>
@@ -587,6 +597,7 @@
           <option>Night Out (Up to 4 Hours)</option>
           <option>Half-Day Driver (6 Hours)</option>
           <option>Full-Day Driver (12 Hours)</option>
+          <option>Hourly Driver (Custom Hours)</option>
         </select>
       </div>
       <div class="field">
@@ -707,7 +718,8 @@
   var LEAD_HOURS = 12;   // minimum notice for any booking
   var SERVICE_LENGTH_HRS = {
     'Personal Ride': 1, 'Quick Trip (Commuter)': 1,
-    'Night Out (Up to 4 Hours)': 4, 'Half-Day Driver (6 Hours)': 6, 'Full-Day Driver (12 Hours)': 12
+    'Night Out (Up to 4 Hours)': 4, 'Half-Day Driver (6 Hours)': 6, 'Full-Day Driver (12 Hours)': 12,
+    'Hourly Driver (Custom Hours)': 4
   };
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
@@ -752,7 +764,9 @@
     var b = BOOKINGS[f.date.value];
     if (b === 'full') return 'That day is fully booked — pick another from the availability calendar.';
     if (Array.isArray(b)) {
-      var s = toMin(f.time.value), e = s + (SERVICE_LENGTH_HRS[f.service.value] || 1) * 60;
+      var lenHrs = SERVICE_LENGTH_HRS[f.service.value] || 1;
+      if (f.service.value.indexOf('Hourly') === 0 && lastQuote && lastQuote.service === f.service.value && lastQuote.hours) lenHrs = lastQuote.hours;
+      var s = toMin(f.time.value), e = s + lenHrs * 60;
       for (var i = 0; i < b.length; i++) {
         if (s < toMin(b[i][1]) && toMin(b[i][0]) < e)
           return 'That time overlaps a booked slot (' + b[i][0] + '–' + b[i][1] + ') — check the availability calendar.';
@@ -769,6 +783,7 @@
     'Night Out (Up to 4 Hours)':   { type: 'block', base: 140, includedMiles: 40,  extraPerMile: 1 },
     'Half-Day Driver (6 Hours)':   { type: 'block', base: 150, includedMiles: 60,  extraPerMile: 1 },
     'Full-Day Driver (12 Hours)':  { type: 'block', base: 280, includedMiles: 120, extraPerMile: 1 },
+    'Hourly Driver (Custom Hours)': { type: 'hourly', includedPerHour: 10, extraPerMile: 1 },
     deadheadPerMile: 0.75,   // billed on one-way drop-offs 50+ miles out (empty return trip)
     deadheadThreshold: 50,
     errandFee: 10,           // pre-pickup coffee/store run; items billed at cost
@@ -784,6 +799,23 @@
 
   function money(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
 
+  // Custom hours: $30/hr up to 5 hrs; 6+ rides the package rates (6=$150 Half-Day,
+  // 7-11 = Half-Day + $25/extra hour, 12 = $280 Full-Day). Never beats the packages.
+  function hourlyBase(h) { return h <= 5 ? 30 * h : (h < 12 ? 150 + (h - 6) * 25 : 280); }
+
+  function refreshHoursUI() {
+    var isHourly = document.getElementById('calc-service').value.indexOf('Hourly') === 0;
+    document.getElementById('hours-row').style.display = isHourly ? 'flex' : 'none';
+    if (isHourly) {
+      var h = +document.getElementById('calc-hours').value;
+      document.getElementById('hours-hint').textContent =
+        h + ' hours = ' + money(hourlyBase(h)) + ' base · ' + (10 * h) + ' miles included' +
+        (h >= 6 ? ' — package rate applied automatically' : '');
+    }
+  }
+  document.getElementById('calc-service').addEventListener('change', refreshHoursUI);
+  document.getElementById('calc-hours').addEventListener('change', refreshHoursUI);
+
   function calcQuote() {
     var service = document.getElementById('calc-service').value;
     var miles = parseFloat(document.getElementById('calc-miles').value);
@@ -795,15 +827,27 @@
     document.getElementById('calc-miles-label').textContent =
       p.type === 'ride' || service.indexOf('Quick') === 0 ? 'Miles (one-way) — auto-fills from addresses, edit anytime' :
       service.indexOf('Night') === 0 ? 'Total miles for the night — round trip auto-fills, edit anytime' :
+      p.type === 'hourly' ? 'Total miles across your hours — round trip auto-fills, edit anytime' :
       'Total miles for the day — round trip auto-fills, edit anytime';
 
     if (isNaN(miles) || miles <= 0) { result.style.display = 'none'; return null; }
 
-    var rows = [], total = 0;
+    var rows = [], total = 0, quoteHours = null;
     if (p.type === 'ride') {
       var fare = Math.max(p.minFare, miles * p.perMile);
       rows.push([miles + ' miles × ' + money(p.perMile) + '/mi' + (fare === p.minFare ? ' (minimum applies)' : ''), money(fare)]);
       total += fare;
+    } else if (p.type === 'hourly') {
+      quoteHours = +document.getElementById('calc-hours').value;
+      var hBase = hourlyBase(quoteHours);
+      var hIncluded = p.includedPerHour * quoteHours;
+      rows.push(['Your driver for ' + quoteHours + ' hours — first ' + hIncluded + ' miles included', money(hBase)]);
+      total += hBase;
+      var hExtra = Math.max(0, miles - hIncluded);
+      if (hExtra > 0) {
+        rows.push([hExtra + ' extra miles × ' + money(p.extraPerMile) + '/mi', money(hExtra * p.extraPerMile)]);
+        total += hExtra * p.extraPerMile;
+      }
     } else {
       rows.push([service + ' — first ' + p.includedMiles + ' miles included', money(p.base)]);
       total += p.base;
@@ -863,7 +907,7 @@
       depEl.style.display = 'none';
     }
     result.style.display = 'block';
-    return { service: service, miles: miles, total: total, promo: appliedPromo };
+    return { service: service, miles: miles, total: total, promo: appliedPromo, hours: quoteHours };
   }
 
   // ---- Auto-mileage: Photon address autocomplete + OSRM driving distance (free, no keys) ----
@@ -996,7 +1040,7 @@
 
   document.getElementById('calc-service').addEventListener('change', applyRouteMiles);
 
-  ['calc-service', 'calc-miles', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
+  ['calc-service', 'calc-miles', 'calc-hours', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', calcQuote);
     el.addEventListener('change', calcQuote);
@@ -1011,7 +1055,7 @@
     var calcRiders = document.getElementById('calc-riders').value;
     document.getElementById('riders').value = calcRiders;
     lastQuote = {
-      service: q.service, miles: q.miles, total: q.total, promo: q.promo,
+      service: q.service, miles: q.miles, total: q.total, promo: q.promo, hours: q.hours,
       deposit: q.total >= PRICING.depositThreshold ? Math.ceil(q.total * PRICING.depositPct) : 0
     };
     var fromAddr = document.getElementById('calc-from').value.trim();
@@ -1026,7 +1070,7 @@
       }
     }
     var notes = document.getElementById('notes');
-    var line = 'Locked quote: ' + q.service + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
+    var line = 'Locked quote: ' + q.service + (q.hours ? ' — ' + q.hours + ' hours' : '') + ', ~' + q.miles + ' miles, ' + calcRiders + ' rider(s), ' + money(q.total);
     notes.value = notes.value ? notes.value + '\n' + line : line;
     document.getElementById('book').scrollIntoView({ behavior: 'smooth' });
   });
