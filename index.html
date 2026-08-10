@@ -260,6 +260,10 @@
     transition: border-color 0.2s, color 0.2s;
   }
   .add-stop:hover { border-color: var(--accent); color: var(--accent); }
+  .same-btn {
+    background: none; border: none; color: var(--accent); font-size: 0.78rem; cursor: pointer;
+    font-family: inherit; padding: 4px 0 0; align-self: flex-start; text-decoration: underline;
+  }
   #promo-msg { font-size: 0.8rem; margin-top: 2px; }
   #promo-msg.promo-ok { color: #7ec97e; }
   #promo-msg.promo-bad { color: #ff6b6b; }
@@ -964,9 +968,11 @@
 
   function relabelStops() {
     stops.forEach(function (s, i) {
-      s.label.textContent = i === stops.length - 1
+      var isLast = i === stops.length - 1;
+      s.label.textContent = isLast
         ? (stops.length === 1 ? 'Destination' : 'Final destination')
         : 'Stop ' + (i + 1);
+      s.sameBtn.style.display = isLast ? 'inline-block' : 'none';
     });
   }
 
@@ -980,11 +986,20 @@
     input.autocomplete = 'off';
     var list = document.createElement('div');
     list.className = 'suggest-list';
-    wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list);
+    var sameBtn = document.createElement('button');
+    sameBtn.type = 'button';
+    sameBtn.className = 'same-btn';
+    sameBtn.textContent = '↩ Same as pickup';
+    wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(list); wrap.appendChild(sameBtn);
     document.getElementById('calc-stops').appendChild(wrap);
-    var entry = { input: input, label: label, geo: null };
+    var entry = { input: input, label: label, sameBtn: sameBtn, geo: null };
     stops.push(entry);
     attachAC(input, list, function (g) { entry.geo = g; });
+    sameBtn.addEventListener('click', function () {
+      entry.input.value = document.getElementById('calc-from').value;
+      entry.geo = geo.from ? { lon: geo.from.lon, lat: geo.from.lat } : null;
+      updateDistance();
+    });
     relabelStops();
   }
   addStopField();
