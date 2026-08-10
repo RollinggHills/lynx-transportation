@@ -459,6 +459,11 @@
       <div class="field full" id="dist-row" style="display:none;">
         <p class="dist-line" id="dist-line"></p>
       </div>
+      <div class="field full" id="wait-row" style="display:none;">
+        <label for="calc-wait">Total wait time at stops (minutes)</label>
+        <input type="number" id="calc-wait" min="0" step="5" placeholder="How long will I be waiting altogether?">
+        <p class="field-hint">First 10 minutes at each stop are free. After that, waiting is 50¢ a minute — running a full errand day? The <b>Hourly Driver</b> is usually the better deal for you.</p>
+      </div>
       <div class="field full">
         <label for="calc-miles" id="calc-miles-label">Miles — auto-fills from the addresses above (edit anytime)</label>
         <input type="number" id="calc-miles" min="0" step="1" placeholder="Or type miles yourself">
@@ -583,6 +588,7 @@
     <div class="rule"><span class="star">✦</span><p><b>Payment.</b> Cash App <b>$PayRollingHills</b>, Apple Pay, PayPal (<b>@OffEarthLLc</b>), or cash — balance due at pickup. Tolls, parking, and airport fees added at cost. Hourly blocks end at the booked time.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> $10 errand fee. Order ahead in the store's app under your name and I'll grab it — fastest for everyone. If I pay at the counter instead, the item cost is added to your bill, receipt kept. Exact store, address, and order details go in your booking. If I'm placing the order myself, the wait can push your pickup back — ordering ahead keeps us on time.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Plan your stops.</b> Multi-stop night? List every address in the booking form and the whole route is locked before I arrive — no mid-ride guesswork.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Waiting at stops.</b> The first 10 minutes at every stop are free — quick grabs cost nothing. After that, waiting is 50¢ a minute. Full errand run? Book the Hourly Driver instead — usually the better deal for you.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Driver's discretion.</b> I can decline any ride where safety or respect is in question. Credits are prepayment, not priority — every booking still follows the notice rules and the calendar. If I ever end a booking relationship, your unused balance comes back to you in full.</p></div>
   </div>
 </section>
@@ -790,6 +796,8 @@
     'Half-Day Driver (6 Hours)':   { type: 'block', base: 150, includedMiles: 60,  extraPerMile: 1 },
     'Full-Day Driver (12 Hours)':  { type: 'block', base: 280, includedMiles: 120, extraPerMile: 1 },
     'Hourly Driver (Custom Hours)': { type: 'hourly', includedPerHour: 10, extraPerMile: 1 },
+    waitGraceMin: 10,        // free minutes per stop on rides
+    waitPerMin: 0.5,         // 50¢/min after grace = $30/hr, same as the hourly rate
     deadheadPerMile: 0.75,   // billed on one-way drop-offs 50+ miles out (empty return trip)
     deadheadThreshold: 50,
     errandFee: 10,           // pre-pickup coffee/store run; items billed at cost
@@ -862,6 +870,20 @@
         var extraCost = extra * p.extraPerMile;
         rows.push([extra + ' extra miles × ' + money(p.extraPerMile) + '/mi', money(extraCost)]);
         total += extraCost;
+      }
+    }
+    // Wait time on rides with stops: 10 free min per stop, then 50¢/min (= the hourly rate)
+    var rideLike = p.type === 'ride' || service.indexOf('Quick') === 0;
+    var midStops = Math.max(0, stops.length - 1);
+    document.getElementById('wait-row').style.display = rideLike && midStops > 0 ? 'flex' : 'none';
+    if (rideLike && midStops > 0) {
+      var waitMin = parseFloat(document.getElementById('calc-wait').value) || 0;
+      var freeMin = PRICING.waitGraceMin * midStops;
+      var chMin = Math.max(0, waitMin - freeMin);
+      if (chMin > 0) {
+        var waitCost = chMin * PRICING.waitPerMin;
+        rows.push([waitMin + ' min waiting (first ' + freeMin + ' free) × 50¢/min', money(waitCost)]);
+        total += waitCost;
       }
     }
     if (oneway && miles >= PRICING.deadheadThreshold) {
@@ -1007,6 +1029,7 @@
   addStopField();
   document.getElementById('add-stop').addEventListener('click', function () {
     if (stops.length < 6) addStopField();
+    calcQuote();
   });
   attachAC(document.getElementById('calc-from'), document.getElementById('sug-from'), function (g) { geo.from = g; });
 
@@ -1084,7 +1107,7 @@
     if (formStops.length < 6) addFormStop();
   });
 
-  ['calc-service', 'calc-miles', 'calc-hours', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
+  ['calc-service', 'calc-miles', 'calc-hours', 'calc-wait', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-promo'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', calcQuote);
     el.addEventListener('change', calcQuote);
