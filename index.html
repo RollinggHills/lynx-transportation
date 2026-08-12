@@ -365,8 +365,7 @@
       </ul>
       <a class="select" href="#book" data-service="Personal Ride">Book This</a>
     </div>
-    <div class="card featured">
-      <span class="tag">Most Popular</span>
+    <div class="card">
       <h3>Half-Day Driver</h3>
       <div class="duration">6 Hours · Dedicated</div>
       <div class="price">$150</div>
@@ -382,7 +381,7 @@
     <div class="card">
       <h3>Full-Day Driver</h3>
       <div class="duration">12 Hours · Dedicated</div>
-      <div class="price">$280</div>
+      <div class="price">$320</div>
       <div class="price-note">First 120 miles included · then $1 per mile</div>
       <p>A full day with your own personal driver. Perfect for packed schedules, out-of-town guests, or special occasions.</p>
       <ul>
@@ -392,11 +391,12 @@
       </ul>
       <a class="select" href="#book" data-service="Full-Day Driver (12 Hours)">Book This</a>
     </div>
-    <div class="card">
+    <div class="card featured">
+      <span class="tag">Most Popular</span>
       <h3>Night Out</h3>
       <div class="duration">Up to 4 Hours · Evening Standby</div>
       <div class="price">$140</div>
-      <div class="price-note">First 40 miles included · then $1 per mile · $100 refundable Night Tab</div>
+      <div class="price-note">First 40 miles included · then $1 per mile · $150 refundable Night Tab</div>
       <p>Your designated driver for the whole night. I wait outside the venue — one text and the car is out front.</p>
       <ul>
         <li>Driver on standby all night</li>
@@ -410,7 +410,7 @@
       <h3>Quick Trip</h3>
       <div class="duration">Commuter Special · Booked by 8 PM the night before</div>
       <div class="price">$25 <small>flat</small></div>
-      <div class="price-note">Up to 12 miles · then $2 per mile · perfect for the morning ride to work</div>
+      <div class="price-note">Up to 8 miles · longer commutes price at standard ride rates · perfect for the morning ride to work</div>
       <p>Same driver, same time, every morning if you want it. Lock in a standing weekday pickup and never gamble on a surge-priced commute again.</p>
       <ul>
         <li>Guaranteed on-time morning pickup</li>
@@ -445,6 +445,10 @@
           <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
           <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
         </select>
+        <div class="calc-check" style="margin-top:8px;">
+          <input type="checkbox" id="calc-evening">
+          <label for="calc-evening">Starts after 6 PM (evening rate — $35/hr)</label>
+        </div>
         <p class="field-hint" id="hours-hint"></p>
       </div>
       <div class="field full suggest">
@@ -588,12 +592,12 @@
     <div class="rule"><span class="star">✦</span><p><b>Deposits hold your slot.</b> Night Out, Half-Day, Full-Day — and any ride quoted over $100 — are confirmed with a 50% deposit (Cash App, Apple Pay, or PayPal). No deposit, no reservation. Cancel 24+ hours out and it comes straight back.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Cancellations.</b> Free up to 24 hours before pickup. Inside 24 hours, the deposit stays with me. No-shows owe the full fare.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Up to 4 riders.</b> That's every seat with a belt. First two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law, no exceptions.</p></div>
-    <div class="rule"><span class="star">✦</span><p><b>Respect the car.</b> No smoking or vaping. Crumbs and small spills are part of the job — no charge. But if the car needs a professional deep clean (yes, that means throwing up), it's a <b>$300 fee</b>: the detail itself plus the bookings I lose while the car's out of service. The Night Tab covers the first $100; the rest is owed before you ride again.</p></div>
-    <div class="rule"><span class="star">✦</span><p><b>The Night Tab.</b> Night Outs start with a <b>$100 refundable tab</b>, collected at pickup. Any extras from the night — added stops, extra miles, wait time, a needed cleaning — come out of it at drop-off, and whatever's left goes straight back in your hand. Clean, as-planned night? The whole $100 comes back.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Respect the car.</b> No smoking or vaping. Crumbs and small spills are part of the job — no charge. But if the car needs a professional deep clean (yes, that means throwing up), it's a <b>$300 fee</b>: the detail itself plus the bookings I lose while the car's out of service. The Night Tab covers the first $150; the rest is owed before you ride again.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>The Night Tab.</b> Night Outs start with a <b>$150 refundable tab</b>, collected at pickup. Extras — added stops, extra miles, overtime past your four hours, a needed cleaning — come out of it at drop-off, and whatever's left goes straight back in your hand. <b>Standby waiting while you're inside is part of the service</b> — never billed, never touched by the tab. Clean, as-planned night? The whole $150 comes back.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Payment.</b> Cash App <b>$PayRollingHills</b>, Apple Pay, PayPal (<b>@OffEarthLLc</b>), or cash — balance due at pickup. Tolls, parking, and airport fees added at cost. Hourly blocks end at the booked time. Tips are never expected and always appreciated — cash or Cash App, any time the night moves you.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Coffee runs &amp; errands.</b> $10 errand fee. Order ahead in the store's app under your name and I'll grab it — fastest for everyone. If I pay at the counter instead, the item cost is added to your bill, receipt kept. Exact store, address, and order details go in your booking. If I'm placing the order myself, the wait can push your pickup back — ordering ahead keeps us on time.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Plan your stops.</b> Multi-stop night? List every address in the booking form and the whole route is locked before I arrive — no mid-ride guesswork.</p></div>
-    <div class="rule"><span class="star">✦</span><p><b>Waiting at stops.</b> The first 10 minutes at every stop are free — quick grabs cost nothing. After that, waiting is 50¢ a minute. Full errand run? Book the Hourly Driver instead — usually the better deal for you.</p></div>
+    <div class="rule"><span class="star">✦</span><p><b>Waiting at stops.</b> On per-mile rides, the first 10 minutes at every stop are free — quick grabs cost nothing. After that, waiting is 50¢ a minute. Full errand run? Book the Hourly Driver instead — usually the better deal for you. <b>Hourly, Half-Day, Full-Day, and Night Out bookings already include waiting</b> — the meter never runs while I stand by.</p></div>
     <div class="rule"><span class="star">✦</span><p><b>Driver's discretion.</b> I can decline any ride where safety or respect is in question. Credits are prepayment, not priority — every booking still follows the notice rules and the calendar. If I ever end a booking relationship, your unused balance comes back to you in full.</p></div>
   </div>
 </section>
@@ -801,10 +805,10 @@
   // All pricing lives here — change a number, the whole site follows.
   var PRICING = {
     'Personal Ride':               { type: 'ride',  minFare: 30,  perMile: 2 },
-    'Quick Trip (Commuter)':       { type: 'block', base: 25,  includedMiles: 12,  extraPerMile: 2 },
+    'Quick Trip (Commuter)':       { type: 'block', base: 25,  includedMiles: 8,   extraPerMile: 2 },
     'Night Out (Up to 4 Hours)':   { type: 'block', base: 140, includedMiles: 40,  extraPerMile: 1 },
     'Half-Day Driver (6 Hours)':   { type: 'block', base: 150, includedMiles: 60,  extraPerMile: 1 },
-    'Full-Day Driver (12 Hours)':  { type: 'block', base: 280, includedMiles: 120, extraPerMile: 1 },
+    'Full-Day Driver (12 Hours)':  { type: 'block', base: 320, includedMiles: 120, extraPerMile: 1 },
     'Hourly Driver (Custom Hours)': { type: 'hourly', includedPerHour: 10, extraPerMile: 1 },
     waitGraceMin: 10,        // free minutes per stop on rides
     waitPerMin: 0.5,         // 50¢/min after grace = $30/hr, same as the hourly rate
@@ -826,21 +830,27 @@
   function money(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
 
   // Custom hours: $30/hr up to 5 hrs; 6+ rides the package rates (6=$150 Half-Day,
-  // 7-11 = Half-Day + $25/extra hour, 12 = $280 Full-Day). Never beats the packages.
-  function hourlyBase(h) { return h <= 5 ? 30 * h : (h < 12 ? 150 + (h - 6) * 25 : 280); }
+  // 7-11 = Half-Day + $25/extra hour, 12 = $320 Full-Day). Never beats the packages.
+  // Evening starts (after 6 PM): $35/hr floor so hourly can't undercut Night Out.
+  function hourlyBase(h, evening) {
+    var std = h <= 5 ? 30 * h : (h < 12 ? 150 + (h - 6) * 25 : 320);
+    return evening ? Math.min(Math.max(35 * h, std), 320) : std;
+  }
 
   function refreshHoursUI() {
     var isHourly = document.getElementById('calc-service').value.indexOf('Hourly') === 0;
     document.getElementById('hours-row').style.display = isHourly ? 'flex' : 'none';
     if (isHourly) {
       var h = +document.getElementById('calc-hours').value;
+      var ev = document.getElementById('calc-evening').checked;
       document.getElementById('hours-hint').textContent =
-        h + ' hours = ' + money(hourlyBase(h)) + ' base · ' + (10 * h) + ' miles included' +
-        (h >= 6 ? ' — package rate applied automatically' : '');
+        h + ' hours = ' + money(hourlyBase(h, ev)) + ' base · ' + (10 * h) + ' miles included' +
+        (ev ? ' — evening rate' : (h >= 6 ? ' — package rate applied automatically' : ''));
     }
   }
   document.getElementById('calc-service').addEventListener('change', refreshHoursUI);
   document.getElementById('calc-hours').addEventListener('change', refreshHoursUI);
+  document.getElementById('calc-evening').addEventListener('change', refreshHoursUI);
 
   function calcQuote() {
     var service = document.getElementById('calc-service').value;
@@ -858,22 +868,27 @@
 
     if (isNaN(miles) || miles <= 0) { result.style.display = 'none'; return null; }
 
-    var rows = [], total = 0, quoteHours = null;
+    var rows = [], total = 0, quoteHours = null, isEvening = false;
     if (p.type === 'ride') {
       var fare = Math.max(p.minFare, miles * p.perMile);
       rows.push([miles + ' miles × ' + money(p.perMile) + '/mi' + (fare === p.minFare ? ' (minimum applies)' : ''), money(fare)]);
       total += fare;
     } else if (p.type === 'hourly') {
       quoteHours = +document.getElementById('calc-hours').value;
-      var hBase = hourlyBase(quoteHours);
+      isEvening = document.getElementById('calc-evening').checked;
+      var hBase = hourlyBase(quoteHours, isEvening);
       var hIncluded = p.includedPerHour * quoteHours;
-      rows.push(['Your driver for ' + quoteHours + ' hours — first ' + hIncluded + ' miles included', money(hBase)]);
+      rows.push(['Your driver for ' + quoteHours + ' hours' + (isEvening ? ' (evening rate)' : '') + ' — first ' + hIncluded + ' miles included', money(hBase)]);
       total += hBase;
       var hExtra = Math.max(0, miles - hIncluded);
       if (hExtra > 0) {
         rows.push([hExtra + ' extra miles × ' + money(p.extraPerMile) + '/mi', money(hExtra * p.extraPerMile)]);
         total += hExtra * p.extraPerMile;
       }
+    } else if (service.indexOf('Quick') === 0 && miles > p.includedMiles) {
+      var prFare = Math.max(PRICING['Personal Ride'].minFare, miles * PRICING['Personal Ride'].perMile);
+      rows.push([miles + ' mi — past the ' + p.includedMiles + '-mile Quick Trip range, standard ride rate applies', money(prFare)]);
+      total += prFare;
     } else {
       rows.push([service + ' — first ' + p.includedMiles + ' miles included', money(p.base)]);
       total += p.base;
@@ -946,13 +961,13 @@
     if (total >= PRICING.depositThreshold) {
       var dep = Math.ceil(total * PRICING.depositPct);
       depEl.textContent = 'Lock it in with ' + money(dep) + ' down · ' + money(total - dep) + ' due at pickup';
-      if (service.indexOf('Night') === 0) depEl.textContent += ' · +$100 Night Tab (covers any extras — the rest comes back at drop-off)';
+      if (service.indexOf('Night') === 0) depEl.textContent += ' · +$150 Night Tab at pickup (refundable) — plan for ' + money(total - dep + 150) + ' at pickup total';
       depEl.style.display = 'block';
     } else {
       depEl.style.display = 'none';
     }
     result.style.display = 'block';
-    return { service: service, miles: miles, total: total, promo: appliedPromo, hours: quoteHours, rush: document.getElementById('calc-rush').checked };
+    return { service: service, miles: miles, total: total, promo: appliedPromo, hours: quoteHours, evening: isEvening, rush: document.getElementById('calc-rush').checked };
   }
 
   // ---- Auto-mileage: Photon address autocomplete + OSRM driving distance (free, no keys) ----
@@ -1153,7 +1168,7 @@
     if (formStops.length < 6) addFormStop();
   });
 
-  ['calc-service', 'calc-miles', 'calc-hours', 'calc-wait', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-rush', 'calc-promo'].forEach(function (id) {
+  ['calc-service', 'calc-miles', 'calc-hours', 'calc-evening', 'calc-wait', 'calc-riders', 'calc-oneway', 'calc-errand', 'calc-rush', 'calc-promo'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', calcQuote);
     el.addEventListener('change', calcQuote);
@@ -1168,7 +1183,7 @@
     var calcRiders = document.getElementById('calc-riders').value;
     document.getElementById('riders').value = calcRiders;
     lastQuote = {
-      service: q.service, miles: q.miles, total: q.total, promo: q.promo, hours: q.hours,
+      service: q.service, miles: q.miles, total: q.total, promo: q.promo, hours: q.hours, evening: q.evening,
       deposit: q.total >= PRICING.depositThreshold ? Math.ceil(q.total * PRICING.depositPct) : 0
     };
     var fromAddr = document.getElementById('calc-from').value.trim();
@@ -1216,9 +1231,12 @@
       'Booking code: ' + code,
       'Service: ' + f.service.value,
       quote ? 'Locked quote: ' + money(quote.total) + ' (~' + quote.miles + ' miles)' + (quote.promo ? ' — promo ' + quote.promo : '') : 'Quote: to be confirmed by reply',
-      v.rush
+      (v.rush
         ? 'RUSH RIDE (inside 12 hrs): +$20 ' + ((quote && quote.rush) ? 'included in quote' : 'applies') + ' — subject to availability and driver location; call/text 213-421-8619 for the fastest confirm'
-        : 'Notice: standard (12+ hours ahead)',
+        : 'Notice: standard (12+ hours ahead)')
+      + (f.service.value.indexOf('Hourly') === 0 && toMin(f.time.value) >= 18 * 60
+          ? '\nEvening hourly (starts 6 PM or later): $35/hr floor ' + ((quote && quote.evening) ? 'included in quote' : 'applies — quote adjusts')
+          : ''),
       'Date: ' + f.date.value,
       'Pickup time: ' + f.time.value,
       'Pickup location: ' + f.pickup.value,
@@ -1243,7 +1261,7 @@
               : 'Only if the quoted fare tops $100 — confirmed with your quote';
           })())
         + (f.service.value.indexOf('Night') === 0
-            ? '\nNight Tab: $100 collected at pickup, refundable — night-of extras deduct from it, the rest is returned at drop-off'
+            ? '\nNight Tab: $150 collected at pickup, refundable — night-of extras deduct from it, the rest is returned at drop-off'
             : ''),
       '',
       'Notes: ' + (f.notes.value || 'None')
@@ -1258,7 +1276,7 @@
           : 'Total ' + money(quote.total) + ' — due at pickup, no deposit needed')
       : 'Exact total confirmed by reply — use the fare calculator to lock it instantly next time.';
     if (f.service.value.indexOf('Night') === 0) {
-      document.getElementById('bc-amount').textContent += ' · +$100 refundable Night Tab at pickup — covers any night-of extras, remainder returned at drop-off';
+      document.getElementById('bc-amount').textContent += ' · +$150 refundable Night Tab at pickup — covers night-of extras, remainder returned at drop-off';
     }
     if (v.rush && !(quote && quote.rush)) {
       document.getElementById('bc-amount').textContent += ' · +$20 rush fee — subject to availability, call/text 213-421-8619 to confirm fast';

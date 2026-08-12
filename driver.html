@@ -118,7 +118,9 @@
         <select id="su-hours">
           <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
           <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
-        </select></div>
+        </select>
+        <div class="check-row" style="margin-top:8px;"><input type="checkbox" id="su-evening"><label for="su-evening">Evening ($35/hr)</label></div>
+      </div>
     </div>
     <div class="row2">
       <div><label for="su-miles">Total miles driven</label><input type="number" id="su-miles" min="0" placeholder="Odometer / Maps"></div>
@@ -140,12 +142,12 @@
       <div><label for="su-paid">Already paid $</label><input type="number" id="su-paid" min="0" step="0.01" placeholder="Deposit + credits"></div>
     </div>
     <div class="row2">
-      <div><label for="su-tab">Night Tab held $</label><input type="number" id="su-tab" min="0" step="1" placeholder="Usually 100"></div>
+      <div><label for="su-tab">Night Tab held $</label><input type="number" id="su-tab" min="0" step="1" placeholder="Usually 150"></div>
       <div><label for="su-tip">Tip $ (thank them!)</label><input type="number" id="su-tip" min="0" step="1" placeholder="Anything they added"></div>
     </div>
     <div class="su-rows" id="su-rows"></div>
     <div class="su-row total"><span id="su-total-label">Balance due</span><span id="su-total">$0</span></div>
-    <p class="hint" style="text-align:center;margin-top:4px;">Tab math: extras come out of the tab, the rest goes back — e.g. $100 tab − $27 extras = hand back $73 at drop-off.</p>
+    <p class="hint" style="text-align:center;margin-top:4px;">Tab math: extras come out of the tab, the rest goes back — e.g. $150 tab − $27 extras = hand back $123 at drop-off. Standby waiting is included on Night Outs — never bill it.</p>
   </form>
 
   <div class="foot">
@@ -227,16 +229,19 @@
   // this table must change too (tell Claude "sync the Day Runner prices").
   var P = {
     'Personal Ride':               { type: 'ride',  minFare: 30, perMile: 2 },
-    'Quick Trip (Commuter)':       { type: 'block', base: 25,  includedMiles: 12,  extraPerMile: 2 },
+    'Quick Trip (Commuter)':       { type: 'block', base: 25,  includedMiles: 8,   extraPerMile: 2 },
     'Night Out (Up to 4 Hours)':   { type: 'block', base: 140, includedMiles: 40,  extraPerMile: 1 },
     'Half-Day Driver (6 Hours)':   { type: 'block', base: 150, includedMiles: 60,  extraPerMile: 1 },
-    'Full-Day Driver (12 Hours)':  { type: 'block', base: 280, includedMiles: 120, extraPerMile: 1 },
+    'Full-Day Driver (12 Hours)':  { type: 'block', base: 320, includedMiles: 120, extraPerMile: 1 },
     'Hourly Driver (Custom Hours)': { type: 'hourly', includedPerHour: 10, extraPerMile: 1 },
     includedRiders: 2, extraRiderFee: 5, waitPerMin: 0.5, cleanFee: 300,
     promos: { 'LYNX10': { pct: 10 } }
   };
   function m(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
-  function hb(h) { return h <= 5 ? 30 * h : (h < 12 ? 150 + (h - 6) * 25 : 280); }
+  function hb(h, ev) {
+    var std = h <= 5 ? 30 * h : (h < 12 ? 150 + (h - 6) * 25 : 320);
+    return ev ? Math.min(Math.max(35 * h, std), 320) : std;
+  }
 
   function settle() {
     var sv = document.getElementById('su-service').value, p = P[sv];
@@ -248,9 +253,13 @@
       rows.push(['Ride — ' + mi + ' mi', m(fare)]); tot += fare;
     } else if (p.type === 'hourly') {
       var h = +document.getElementById('su-hours').value;
-      rows.push([h + ' hrs base', m(hb(h))]); tot += hb(h);
+      var ev = document.getElementById('su-evening').checked;
+      rows.push([h + ' hrs base' + (ev ? ' (evening)' : ''), m(hb(h, ev))]); tot += hb(h, ev);
       var ex = Math.max(0, mi - 10 * h);
       if (ex > 0) { rows.push([ex + ' extra mi', m(ex * p.extraPerMile)]); tot += ex * p.extraPerMile; }
+    } else if (sv.indexOf('Quick') === 0 && mi > p.includedMiles) {
+      var prF = Math.max(30, mi * 2);
+      rows.push(['Over Quick Trip range — ride rate, ' + mi + ' mi', m(prF)]); tot += prF;
     } else {
       rows.push([sv.split(' (')[0] + ' base', m(p.base)]); tot += p.base;
       var ex2 = Math.max(0, mi - p.includedMiles);
@@ -286,7 +295,7 @@
     document.getElementById('su-total-label').textContent = tot >= 0 ? 'Balance due' : 'Refund to rider';
     document.getElementById('su-total').textContent = m(Math.abs(tot));
   }
-  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-clean', 'su-rush', 'su-paid', 'su-tab', 'su-tip'].forEach(function (id) {
+  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-clean', 'su-rush', 'su-paid', 'su-tab', 'su-tip', 'su-evening'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', settle);
     el.addEventListener('change', settle);

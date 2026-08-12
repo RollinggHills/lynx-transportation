@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Lynx Dispatch</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%23e2b458' d='M50 14L38 18L30 5L24 24L14 34L18 44L12 52L20 54L16 64L26 62L30 74L38 72L50 86L62 72L70 74L74 62L84 64L80 54L88 52L82 44L86 34L76 24L70 5L62 18Z'/><path fill='%230d1020' d='M31 10L27 21L36 18Z M69 10L73 21L64 18Z M33 42L45 40L41 47Z M67 42L55 40L59 47Z M45 59L55 59L50 66Z'/></svg>">
+<style>
+  :root {
+    --bg: #060810; --surface: #0d1020; --surface-2: #141a2e; --line: #1e2540;
+    --text: #f2f4fa; --muted: #97a0b8; --accent: #e2b458; --green: #7ec97e; --red: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 50px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 14px; }
+  header { padding: 18px 0 12px; text-align: center; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+  header b { letter-spacing: 0.2em; font-size: 1.05rem; }
+  header span { display: block; font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
+  h2 { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 20px 0 10px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px; margin-bottom: 12px;
+  }
+  .card.pending { border-color: var(--accent); }
+  .b-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .b-code { font-family: ui-monospace, Menlo, monospace; font-weight: 800; color: var(--accent); font-size: 1.1rem; }
+  .b-status { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; border: 1px solid var(--line); color: var(--muted); }
+  .b-status.pending_verify { color: var(--accent); border-color: var(--accent); }
+  .b-status.confirmed { color: var(--green); border-color: var(--green); }
+  .b-status.declined, .b-status.expired { color: var(--red); border-color: var(--red); }
+  .b-when { font-weight: 700; font-size: 1.05rem; margin: 6px 0 2px; }
+  .b-line { color: var(--muted); font-size: 0.92rem; padding: 2px 0; }
+  .b-line b { color: var(--text); }
+  .repeat { color: var(--green); font-size: 0.8rem; font-weight: 700; }
+  .proof-img { max-width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid var(--line); }
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .actions a, .actions button {
+    flex: 1; min-width: 100px; text-align: center; text-decoration: none; cursor: pointer;
+    padding: 13px 8px; border-radius: 100px; font-weight: 700; font-size: 0.92rem; font-family: inherit;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  }
+  .actions button.ok { background: var(--green); border-color: var(--green); color: #08140a; }
+  .actions button.no { color: var(--red); }
+  .actions a.txt { color: var(--accent); }
+  .empty { text-align: center; color: var(--muted); padding: 26px 10px; }
+  /* auth */
+  #auth { max-width: 420px; margin: 40px auto; text-align: center; }
+  #auth input {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); padding: 13px; font-size: 16px; font-family: inherit; outline: none; margin: 12px 0;
+  }
+  #auth button {
+    width: 100%; background: var(--accent); color: #14100a; border: none; border-radius: 100px;
+    padding: 14px; font-weight: 700; font-size: 1rem; font-family: inherit; cursor: pointer;
+  }
+  #auth p { color: var(--muted); font-size: 0.88rem; margin-top: 12px; }
+  .otp-note { color: var(--green); }
+  #signout { background: none; border: none; color: var(--muted); font-size: 0.78rem; cursor: pointer; font-family: inherit; text-decoration: underline; float: right; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <b>LYNX</b><span>Dispatch · driver only</span>
+</header>
+
+<div class="wrap">
+  <div id="auth">
+    <h2 style="margin-top:26px;">Driver sign-in</h2>
+    <input type="email" id="auth-email" placeholder="matthewhilljr56@gmail.com" autocomplete="email">
+    <button id="auth-send">Email me a sign-in code</button>
+    <div id="otp-row" style="display:none;">
+      <input type="text" id="auth-otp" placeholder="6-digit code from your email" inputmode="numeric">
+      <button id="auth-verify">Verify &amp; enter</button>
+    </div>
+    <p id="auth-msg"></p>
+  </div>
+
+  <div id="board" style="display:none;">
+    <button id="signout">sign out</button>
+    <h2>⏳ Needs your call</h2>
+    <div id="queue"></div>
+    <h2>✅ Upcoming confirmed</h2>
+    <div id="upcoming"></div>
+    <h2>🕐 Waiting on payment</h2>
+    <div id="unpaid"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  var SB_URL = '__SB_URL__';
+  var SB_ANON = '__SB_ANON__';
+  var sb = supabase.createClient(SB_URL, SB_ANON);
+
+  var authBox = document.getElementById('auth'), board = document.getElementById('board');
+  var msg = document.getElementById('auth-msg');
+
+  document.getElementById('auth-send').addEventListener('click', function () {
+    var email = document.getElementById('auth-email').value.trim();
+    if (!email) return;
+    sb.auth.signInWithOtp({ email: email }).then(function (r) {
+      if (r.error) { msg.textContent = r.error.message; return; }
+      document.getElementById('otp-row').style.display = 'block';
+      msg.innerHTML = '<span class="otp-note">Code sent — check your email (and spam).</span>';
+    });
+  });
+  document.getElementById('auth-verify').addEventListener('click', function () {
+    var email = document.getElementById('auth-email').value.trim();
+    var token = document.getElementById('auth-otp').value.trim();
+    sb.auth.verifyOtp({ email: email, token: token, type: 'email' }).then(function (r) {
+      if (r.error) { msg.textContent = r.error.message; return; }
+    });
+  });
+  document.getElementById('signout').addEventListener('click', function () { sb.auth.signOut(); });
+
+  sb.auth.onAuthStateChange(function (_e, session) {
+    var onboard = !!session;
+    authBox.style.display = onboard ? 'none' : 'block';
+    board.style.display = onboard ? 'block' : 'none';
+    if (onboard) { load(); subscribe(); }
+  });
+
+  var profiles = {};
+  function fmtWhen(b) {
+    var d = new Date(b.ride_date + 'T' + (b.ride_time || '00:00'));
+    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + (b.ride_time || '');
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+  function card(b) {
+    var prof = profiles[b.phone];
+    var stops = (b.stops || []).length ? '<div class="b-line">Stops: <b>' + (b.stops || []).map(esc).join(' → ') + '</b></div>' : '';
+    var quote = b.quote_total != null ? '<div class="b-line">Quote: <b>$' + b.quote_total + '</b>' + (b.quote_deposit ? ' · deposit $' + b.quote_deposit : '') + (b.promo ? ' · ' + esc(b.promo) : '') + (b.rush ? ' · <b>RUSH</b>' : '') + '</div>' : (b.rush ? '<div class="b-line"><b>RUSH</b> — no locked quote</div>' : '');
+    var smsBody = 'LYNX: booking ' + b.code + ' for ' + fmtWhen(b) + ' is CONFIRMED. See you at: ' + (b.pickup || '');
+    var el = document.createElement('div');
+    el.className = 'card' + (b.status === 'pending_verify' ? ' pending' : '');
+    el.innerHTML =
+      '<div class="b-head"><span class="b-code">' + esc(b.code) + '</span><span class="b-status ' + esc(b.status) + '">' + esc(b.status.replace('_', ' ')) + '</span></div>' +
+      '<div class="b-when">' + esc(fmtWhen(b)) + ' — ' + esc(b.service) + '</div>' +
+      '<div class="b-line"><b>' + esc(b.name) + '</b> · ' + esc(b.phone) + (prof && prof.rides_confirmed ? ' · <span class="repeat">ride #' + (prof.rides_confirmed + 1) + ' 🌟</span>' : ' · first-timer') + '</div>' +
+      '<div class="b-line">From: <b>' + esc(b.pickup) + '</b>' + (b.dropoff ? ' → <b>' + esc(b.dropoff) + '</b>' : '') + '</div>' +
+      stops + quote +
+      (b.riders > 1 ? '<div class="b-line">Riders: <b>' + b.riders + '</b></div>' : '') +
+      (b.errand ? '<div class="b-line">Errand: <b>' + esc(b.errand) + '</b></div>' : '') +
+      (b.playlist ? '<div class="b-line">Playlist: <b>' + esc(b.playlist) + '</b></div>' : '') +
+      (b.notes ? '<div class="b-line">Notes: <b>' + esc(b.notes) + '</b></div>' : '') +
+      '<div class="proof-slot"></div><div class="actions"></div>';
+
+    if (b.proof_path) {
+      sb.storage.from('proofs').download(b.proof_path).then(function (r) {
+        if (r.data) {
+          var img = document.createElement('img');
+          img.className = 'proof-img';
+          img.src = URL.createObjectURL(r.data);
+          el.querySelector('.proof-slot').appendChild(img);
+        }
+      });
+    }
+    var acts = el.querySelector('.actions');
+    if (b.status === 'pending_verify' || b.status === 'pending_payment') {
+      var ok = document.createElement('button'); ok.className = 'ok'; ok.textContent = '✓ Confirm';
+      ok.addEventListener('click', function () { setStatus(b, 'confirmed', smsBody); });
+      var no = document.createElement('button'); no.className = 'no'; no.textContent = '✕ Decline';
+      no.addEventListener('click', function () {
+        var why = prompt('Reason (customer sees this):', 'Slot no longer available');
+        if (why !== null) setStatus(b, 'declined', null, why);
+      });
+      acts.appendChild(ok); acts.appendChild(no);
+    }
+    var txt = document.createElement('a'); txt.className = 'txt';
+    txt.href = 'sms:' + b.phone + '&body=' + encodeURIComponent(smsBody);
+    txt.textContent = '💬 Text'; acts.appendChild(txt);
+    var call = document.createElement('a'); call.href = 'tel:' + b.phone; call.textContent = '📞 Call'; acts.appendChild(call);
+    return el;
+  }
+
+  function setStatus(b, status, smsBody, note) {
+    sb.from('bookings').update({ status: status, driver_note: note || null }).eq('id', b.id).then(function (r) {
+      if (r.error) alert(r.error.message);
+      else if (status === 'confirmed' && smsBody && confirm('Confirmed. Text them now?'))
+        window.location.href = 'sms:' + b.phone + '&body=' + encodeURIComponent(smsBody);
+      load();
+    });
+  }
+
+  function render(listEl, rows) {
+    listEl.innerHTML = '';
+    if (!rows.length) { listEl.innerHTML = '<div class="empty">Nothing here.</div>'; return; }
+    rows.forEach(function (b) { listEl.appendChild(card(b)); });
+  }
+
+  function load() {
+    Promise.all([
+      sb.from('bookings').select('*').in('status', ['pending_verify']).order('created_at'),
+      sb.from('bookings').select('*').eq('status', 'confirmed').gte('ride_date', new Date().toISOString().slice(0, 10)).order('ride_date').order('ride_time'),
+      sb.from('bookings').select('*').eq('status', 'pending_payment').order('created_at', { ascending: false }).limit(10),
+      sb.from('profiles').select('*')
+    ]).then(function (r) {
+      profiles = {};
+      (r[3].data || []).forEach(function (p) { profiles[p.phone] = p; });
+      render(document.getElementById('queue'), r[0].data || []);
+      render(document.getElementById('upcoming'), r[1].data || []);
+      render(document.getElementById('unpaid'), r[2].data || []);
+    });
+  }
+
+  var channel = null;
+  function subscribe() {
+    if (channel) return;
+    channel = sb.channel('bookings-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, function () { load(); })
+      .subscribe();
+  }
+</script>
+
+</body>
+</html>
