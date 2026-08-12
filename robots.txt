@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /driver.html
+Disallow: /admin.html
+Disallow: /print-card.html
+
+Sitemap: https://lynxdriver.com/sitemap.xml

@@ -8,6 +8,72 @@
 <meta property="og:title" content="Lynx Transportation Services — Your Personal Driver">
 <meta property="og:description" content="Private rides, morning commutes, night-out standby, and dedicated 6–12 hour driver service. Book direct — no surge, no strangers.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://lynxdriver.com/">
+<link rel="canonical" href="https://lynxdriver.com/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://lynxdriver.com/#business",
+      "name": "Lynx Transportation Services",
+      "url": "https://lynxdriver.com/",
+      "telephone": "+1-213-421-8619",
+      "email": "book@lynxdriver.com",
+      "description": "Private rides and personal driver service. Single trips, morning commutes, night-out standby, and dedicated 6–12 hour driver bookings. Book direct — no surge, no strangers.",
+      "priceRange": "$25 - $320",
+      "paymentAccepted": "Cash, Cash App, Apple Pay, PayPal",
+      "slogan": "Your personal driver. On your schedule."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I book a ride?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Use the booking form at lynxdriver.com — pick your service, date, and time. You get a booking code and payment instructions on the spot, and your slot locks once payment proof lands. Or just call or text 213-421-8619." }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does a ride cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Personal rides are $2 per mile with a $30 minimum that covers your first 15 miles. The $25 Quick Trip covers morning commutes up to 8 miles. Dedicated-driver blocks run $140 to $320. The fare calculator on the site shows your exact total before you book — and booking locks that price." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I book a same-day or last-minute ride?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Standard bookings need 12 hours notice. Inside 12 hours it's a Rush Ride: +$20, subject to availability and where the car is. Call or text 213-421-8619 — under 2 hours, definitely text." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you do airport runs?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes — airport trips are regular personal rides. Airport fees, tolls, and parking are the only add-ons, billed at cost. Book the night before and your pickup time is guaranteed." }
+        },
+        {
+          "@type": "Question",
+          "name": "How many passengers can ride?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Up to 4 — every seat with a belt. The first two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I pay?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Cash App ($PayRollingHills), Apple Pay, PayPal (@OffEarthLLc), or cash at pickup. Rides quoted over $100 are confirmed with a 50% deposit — cancel 24 or more hours out and it comes straight back." }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes this different from a rideshare app?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Same professional driver every time, a price that locks when you book, and no surge pricing — plus services the apps don't offer: evening standby for a night out, dedicated 6–12 hour bookings, and standing morning pickups." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the Night Out service?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Your designated driver for up to 4 hours in the evening — $140 with the first 40 miles included. The driver waits outside the venue; one text and the car is out front. A $150 refundable Night Tab covers night-of extras, and whatever's left comes back at drop-off." }
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%23e2b458' d='M50 14L38 18L30 5L24 24L14 34L18 44L12 52L20 54L16 64L26 62L30 74L38 72L50 86L62 72L70 74L74 62L84 64L80 54L88 52L82 44L86 34L76 24L70 5L62 18Z'/><path fill='%230d1020' d='M31 10L27 21L36 18Z M69 10L73 21L64 18Z M33 42L45 40L41 47Z M67 42L55 40L59 47Z M45 59L55 59L50 66Z'/></svg>">
 <style>
   :root {
@@ -228,6 +294,24 @@
   .rules .rule:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .rule p { color: var(--muted); font-size: 0.88rem; }
   .rule p b { color: var(--text); }
+
+  /* FAQ */
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; }
+  .faq details[open] { border-color: #2e3860; }
+  .faq summary {
+    cursor: pointer; padding: 15px 44px 15px 18px; font-weight: 600; font-size: 0.95rem;
+    list-style: none; position: relative;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    color: var(--accent); font-size: 1.2rem; font-weight: 400;
+  }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; padding: 0 18px 16px; }
+  .faq details p b { color: var(--text); }
+  .faq details p a { color: var(--accent); }
 
   /* Form error */
   #form-error {
@@ -716,6 +800,45 @@
       </p>
       <button id="bc-send" class="submit" type="button">Open My Booking Email</button>
     </div>
+  </div>
+</section>
+
+<section id="faq" class="wrap">
+  <h2 class="section-title">Questions, Answered</h2>
+  <p class="section-sub">The short version of everything above.</p>
+  <div class="faq">
+    <details>
+      <summary>How do I book a ride?</summary>
+      <p>Use the <a href="#book">booking form</a> — pick your service, date, and time. You get a booking code and payment instructions on the spot, and your slot locks once payment proof lands. Or just call or text <b>213-421-8619</b>.</p>
+    </details>
+    <details>
+      <summary>How much does a ride cost?</summary>
+      <p>Personal rides are <b>$2 per mile with a $30 minimum</b> that covers your first 15 miles. The $25 Quick Trip covers morning commutes up to 8 miles. Dedicated-driver blocks run $140 to $320. The <a href="#quote">fare calculator</a> shows your exact total before you book — and booking locks that price.</p>
+    </details>
+    <details>
+      <summary>Can I book a same-day or last-minute ride?</summary>
+      <p>Standard bookings need 12 hours notice. Inside 12 hours it's a <b>Rush Ride</b>: +$20, subject to availability and where the car is. Call or text <b>213-421-8619</b> — under 2 hours, definitely text.</p>
+    </details>
+    <details>
+      <summary>Do you do airport runs?</summary>
+      <p>Yes — airport trips are regular personal rides. Airport fees, tolls, and parking are the only add-ons, billed at cost. Book the night before and your pickup time is guaranteed.</p>
+    </details>
+    <details>
+      <summary>How many passengers can ride?</summary>
+      <p>Up to 4 — every seat with a belt. The first two riders are included; riders three and four are +$5 each. Kids ride in a proper car seat that you provide — that's state law.</p>
+    </details>
+    <details>
+      <summary>How do I pay?</summary>
+      <p>Cash App (<b>$PayRollingHills</b>), Apple Pay, PayPal (<b>@OffEarthLLc</b>), or cash at pickup. Rides quoted over $100 are confirmed with a 50% deposit — cancel 24+ hours out and it comes straight back.</p>
+    </details>
+    <details>
+      <summary>What makes this different from a rideshare app?</summary>
+      <p>Same professional driver every time, a price that locks when you book, and no surge pricing — plus services the apps don't offer: evening standby for a night out, dedicated 6–12 hour bookings, and standing morning pickups.</p>
+    </details>
+    <details>
+      <summary>What is the Night Out service?</summary>
+      <p>Your designated driver for up to 4 hours in the evening — <b>$140</b> with the first 40 miles included. I wait outside the venue; one text and the car is out front. A $150 refundable Night Tab covers night-of extras, and whatever's left comes back at drop-off.</p>
+    </details>
   </div>
 </section>
 
