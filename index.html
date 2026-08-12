@@ -197,8 +197,8 @@
   .card.wide { grid-column: 1 / -1; }
 
   /* Passes & credits */
-  .pass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-  @media (max-width: 760px) { .pass-grid { grid-template-columns: 1fr; } }
+  .pass-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 640px) { .pass-grid { grid-template-columns: 1fr; } }
   .fine-print { text-align: center; color: var(--muted); font-size: 0.8rem; max-width: 620px; margin: 22px auto 0; }
 
   /* Availability calendar */
@@ -547,6 +547,18 @@
       </ul>
       <a class="select" href="mailto:book@lynxdriver.com?subject=Start%20a%20Ride%20Tab&body=Name%3A%0APhone%3A%0AAmount%20to%20load%3A%20%24">Start a Tab</a>
     </div>
+    <div class="card">
+      <h3>Refer &amp; Ride</h3>
+      <div class="duration">You Both Win</div>
+      <div class="price">$15 <small>+ $15</small></div>
+      <div class="price-note">Ride credit for you and your friend</div>
+      <ul>
+        <li>Friend books with your name on it</li>
+        <li>After their first paid ride: $15 on each tab</li>
+        <li>Applies to your <b>next</b> ride · one credit per booking</li>
+      </ul>
+      <a class="select" href="sms:?&body=My%20driver%20%E2%80%94%20book%20direct%2C%20no%20surge%3A%20https%3A%2F%2Flynxdriver.com%20%E2%80%94%20put%20my%20name%20in%20the%20booking%20and%20we%20both%20get%20%2415%20in%20ride%20credit.">Text a Friend the Link</a>
+    </div>
   </div>
   <p class="fine-print">Passes and credits activate once prepaid by Cash App ($PayRollingHills), Apple Pay, or PayPal (@OffEarthLLc). Your balance rolls over and never expires. Pack rates are honored for 90 days — after that, any remaining balance converts to dollar credit at current prices. Credits are prepayment, not priority: all rides book through the normal notice rules and calendar. Pass slots are capacity-limited — when the morning window is full, it's full.</p>
 </section>
@@ -651,6 +663,10 @@
         <label for="playlist">Your soundtrack (optional)</label>
         <input type="text" id="playlist" name="playlist" placeholder="Paste a Spotify or Apple Music playlist link — or list a few songs">
         <p class="field-hint">Your ride, your music — queued up before I pull up. Great for Night Outs.</p>
+      </div>
+      <div class="field full">
+        <label for="referrer">Referred by (optional)</label>
+        <input type="text" id="referrer" name="referrer" placeholder="Friend's name or number — you both get $15 credit after your first ride">
       </div>
       <div class="field">
         <label for="name">Your Name</label>
@@ -1247,6 +1263,7 @@
       })(),
       'Pre-pickup errand: ' + (f.errand.value || 'None'),
       'Playlist: ' + (f.playlist.value || 'None'),
+      'Referred by: ' + (f.referrer.value || 'None'),
       '',
       'Name: ' + f.name.value,
       'Phone: ' + f.phone.value,

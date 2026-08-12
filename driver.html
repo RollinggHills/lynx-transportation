@@ -62,6 +62,19 @@
     background: var(--accent); color: #14100a; border: none; border-radius: 100px;
     padding: 14px; font-weight: 700; font-size: 1rem; font-family: inherit; cursor: pointer;
   }
+  .cred { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .cred-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .cred-name { font-weight: 700; }
+  .cred-bal { color: var(--accent); font-weight: 800; font-size: 1.25rem; }
+  .cred-last { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+  .cred-acts { display: flex; gap: 8px; margin-top: 10px; }
+  .cred-acts button {
+    flex: 1; padding: 11px 8px; border-radius: 100px; font-weight: 700; font-size: 0.9rem;
+    font-family: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  }
+  .cred-acts button.plus { color: var(--green); }
+  .cred-acts button.minus { color: var(--accent); }
+  .cred-acts button.del { color: var(--red); flex: 0; min-width: 52px; }
   .su-rows { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 8px; }
   .su-row { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.92rem; padding: 3px 0; }
   .su-row.total { color: var(--text); font-weight: 700; font-size: 1.15rem; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; }
@@ -148,6 +161,17 @@
     <div class="su-rows" id="su-rows"></div>
     <div class="su-row total"><span id="su-total-label">Balance due</span><span id="su-total">$0</span></div>
     <p class="hint" style="text-align:center;margin-top:4px;">Tab math: extras come out of the tab, the rest goes back — e.g. $150 tab − $27 extras = hand back $123 at drop-off. Standby waiting is included on Night Outs — never bill it.</p>
+  </form>
+
+  <h2>Credit Tabs</h2>
+  <div id="creds"></div>
+  <form id="cred-form">
+    <div class="row2">
+      <div><label for="cr-name">Name</label><input type="text" id="cr-name" placeholder="Customer" required></div>
+      <div><label for="cr-phone">Phone</label><input type="tel" id="cr-phone" placeholder="For matching bookings"></div>
+    </div>
+    <div><label for="cr-amt">Starting credit $</label><input type="number" id="cr-amt" min="0" step="1" placeholder="80 = 4-Ride Pack · 100 = Weekly Pass · 15 = referral"></div>
+    <button class="add" type="submit">Add Credit Tab</button>
   </form>
 
   <div class="foot">
@@ -302,6 +326,61 @@
   });
   document.getElementById('settle-form').addEventListener('submit', function (e) { e.preventDefault(); });
   settle();
+
+  // ---- Credit Tabs: per-customer balances, on this phone only (migrates to profiles in v2)
+  var CKEY = 'lynx-credits';
+  function loadC() { try { return JSON.parse(localStorage.getItem(CKEY)) || []; } catch (e) { return []; } }
+  function saveC(c) { localStorage.setItem(CKEY, JSON.stringify(c)); }
+
+  function renderC() {
+    var creds = loadC();
+    var box = document.getElementById('creds');
+    if (!creds.length) { box.innerHTML = '<div class="empty">No credit tabs yet. Pack sold or referral earned? Add it below.</div>'; return; }
+    box.innerHTML = '';
+    creds.forEach(function (c, i) {
+      var last = c.log && c.log.length ? c.log[c.log.length - 1] : null;
+      var el = document.createElement('div');
+      el.className = 'cred';
+      el.innerHTML =
+        '<div class="cred-head"><span class="cred-name">' + esc(c.name) + (c.phone ? ' · ' + esc(c.phone) : '') + '</span>' +
+        '<span class="cred-bal">$' + c.balance + '</span></div>' +
+        (last ? '<div class="cred-last">Last: ' + (last.delta > 0 ? '+' : '') + '$' + last.delta + (last.note ? ' — ' + esc(last.note) : '') + ' · ' + new Date(last.ts).toLocaleDateString() + '</div>' : '') +
+        '<div class="cred-acts"></div>';
+      var acts = el.querySelector('.cred-acts');
+      function adjust(sign) {
+        var amt = parseFloat(prompt(sign > 0 ? 'Add how much? (15 = referral, 80 = pack)' : 'Deduct how much? (ride price)', sign > 0 ? '15' : '25'));
+        if (isNaN(amt) || amt <= 0) return;
+        var note = prompt('Note (optional):', sign > 0 ? 'Credit load' : 'Ride') || '';
+        var list = loadC();
+        list[i].balance = Math.round((list[i].balance + sign * amt) * 100) / 100;
+        (list[i].log = list[i].log || []).push({ ts: Date.now(), delta: sign * amt, note: note });
+        saveC(list); renderC();
+      }
+      var plus = document.createElement('button'); plus.className = 'plus'; plus.textContent = '+ Add';
+      plus.addEventListener('click', function () { adjust(1); });
+      var minus = document.createElement('button'); minus.className = 'minus'; minus.textContent = '− Use';
+      minus.addEventListener('click', function () { adjust(-1); });
+      var del = document.createElement('button'); del.className = 'del'; del.textContent = '✕';
+      del.addEventListener('click', function () {
+        if (!confirm('Remove ' + c.name + '’s tab ($' + c.balance + ' remaining)?')) return;
+        var list = loadC(); list.splice(i, 1); saveC(list); renderC();
+      });
+      acts.appendChild(plus); acts.appendChild(minus); acts.appendChild(del);
+      box.appendChild(el);
+    });
+  }
+  document.getElementById('cred-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var creds = loadC();
+    creds.push({
+      name: document.getElementById('cr-name').value.trim(),
+      phone: document.getElementById('cr-phone').value.trim(),
+      balance: parseFloat(document.getElementById('cr-amt').value) || 0,
+      log: [{ ts: Date.now(), delta: parseFloat(document.getElementById('cr-amt').value) || 0, note: 'Opened tab' }]
+    });
+    saveC(creds); e.target.reset(); renderC();
+  });
+  renderC();
 </script>
 
 </body>
