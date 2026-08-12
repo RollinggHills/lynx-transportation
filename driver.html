@@ -148,6 +148,10 @@
       <div><label for="su-promo">Promo code used</label><input type="text" id="su-promo" placeholder="If any" style="text-transform:uppercase"></div>
     </div>
     <div class="row2">
+      <div class="check-row"><input type="checkbox" id="su-errand"><label for="su-errand">$10 errand fee</label></div>
+      <div class="check-row"><input type="checkbox" id="su-oneway"><label for="su-oneway">One-way 50+ mi (return travel)</label></div>
+    </div>
+    <div class="row2">
       <div>
         <div class="check-row"><input type="checkbox" id="su-clean"><label for="su-clean">$300 deep-clean</label></div>
         <div class="check-row" style="margin-top:8px;"><input type="checkbox" id="su-rush"><label for="su-rush">$20 rush fee</label></div>
@@ -259,6 +263,7 @@
     'Full-Day Driver (12 Hours)':  { type: 'block', base: 320, includedMiles: 120, extraPerMile: 1 },
     'Hourly Driver (Custom Hours)': { type: 'hourly', includedPerHour: 10, extraPerMile: 1 },
     includedRiders: 2, extraRiderFee: 5, waitPerMin: 0.5, cleanFee: 300,
+    errandFee: 10, deadheadPerMile: 0.75, deadheadThreshold: 50, rushFee: 20,
     promos: { 'LYNX10': { pct: 10 } }
   };
   function m(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toFixed(0)); }
@@ -296,6 +301,12 @@
     }
     var w = parseFloat(document.getElementById('su-wait').value) || 0;
     if (w > 0) { rows.push([w + ' min wait × 50¢', m(w * P.waitPerMin)]); tot += w * P.waitPerMin; }
+    if (document.getElementById('su-oneway').checked && mi >= P.deadheadThreshold) {
+      var dh = mi * P.deadheadPerMile;
+      rows.push(['Return travel ' + mi + ' mi × 75¢', m(dh)]); tot += dh;
+    }
+    if (document.getElementById('su-errand').checked) { rows.push(['Errand fee', m(P.errandFee)]); tot += P.errandFee; }
+    if (document.getElementById('su-rush').checked) { rows.push(['Rush fee', m(P.rushFee)]); tot += P.rushFee; }
     var pc = document.getElementById('su-promo').value.trim().toUpperCase();
     if (pc && P.promos[pc]) {
       var d = Math.round(tot * P.promos[pc].pct) / 100;
@@ -305,7 +316,6 @@
     if (tl > 0) { rows.push(['Tolls / parking at cost', m(tl)]); tot += tl; }
     var itc = parseFloat(document.getElementById('su-items').value) || 0;
     if (itc > 0) { rows.push(['Items fronted at cost', m(itc)]); tot += itc; }
-    if (document.getElementById('su-rush').checked) { rows.push(['Rush fee', m(20)]); tot += 20; }
     if (document.getElementById('su-clean').checked) { rows.push(['Deep-clean fee', m(P.cleanFee)]); tot += P.cleanFee; }
     var tip = parseFloat(document.getElementById('su-tip').value) || 0;
     if (tip > 0) { rows.push(['Tip 💛', m(tip)]); tot += tip; }
@@ -319,7 +329,7 @@
     document.getElementById('su-total-label').textContent = tot >= 0 ? 'Balance due' : 'Refund to rider';
     document.getElementById('su-total').textContent = m(Math.abs(tot));
   }
-  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-clean', 'su-rush', 'su-paid', 'su-tab', 'su-tip', 'su-evening'].forEach(function (id) {
+  ['su-service', 'su-hours', 'su-miles', 'su-riders', 'su-wait', 'su-tolls', 'su-items', 'su-promo', 'su-errand', 'su-oneway', 'su-clean', 'su-rush', 'su-paid', 'su-tab', 'su-tip', 'su-evening'].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener('input', settle);
     el.addEventListener('change', settle);
